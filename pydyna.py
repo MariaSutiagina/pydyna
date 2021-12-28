@@ -1,6 +1,7 @@
 import pygame as pg
 
 from models.game import Game
+from models.hero import Hero
 from models.wall import Wall
 from models.field import Field
 from models.character import Character
@@ -30,6 +31,7 @@ class Dyna(Game):
         self.create_wall()
         self.create_field()
         self.create_characters()
+        self.create_hero()
 
     def create_wall(self):
         self.wall = Wall()
@@ -44,8 +46,18 @@ class Dyna(Game):
         width = cfg.TILE_WIDTH_IN_PIXEL
         height = cfg.TILE_HEIGHT_IN_PIXEL
         surface = pg.Surface((width, height), pg.SRCALPHA)
-        surface.fill(color)
+        surface = surface.convert_alpha()
         pg.draw.circle(surface, (255, 0, 0), (width // 2, height // 2), width //2, width=5)
+        
+        return surface
+
+    def get_hero_image(self):
+        color = (0, 255, 255)
+        width = cfg.TILE_WIDTH_IN_PIXEL
+        height = cfg.TILE_HEIGHT_IN_PIXEL
+        surface = pg.Surface((width, height), pg.SRCALPHA, 32)        
+        surface = surface.convert_alpha()
+        pg.draw.circle(surface, (0, 0, 255), (width // 2, height // 2), width //2, width=5)
         
         return surface
 
@@ -59,6 +71,29 @@ class Dyna(Game):
                }
 
         character = Character(self, CharacterState(state), self.get_character_image())
+        self.objects.append(character)
+
+    def create_hero(self):
+        state = {
+               'cellx': cfg.TILE_SIZE * 5,
+               'celly': cfg.TILE_SIZE * 5,
+               'speed': 1,
+               'direction': Direction.NONE,
+               'old_direction': Direction.NONE
+               }
+
+        character = Hero(self, CharacterState(state), self.get_hero_image())
+        
+        self.keydown_handlers[pg.K_DOWN].append(character.handle_keydown)
+        self.keydown_handlers[pg.K_RIGHT].append(character.handle_keydown)
+        self.keydown_handlers[pg.K_LEFT].append(character.handle_keydown)
+        self.keydown_handlers[pg.K_UP].append(character.handle_keydown)
+
+        self.keyup_handlers[pg.K_DOWN].append(character.handle_keyup)
+        self.keyup_handlers[pg.K_RIGHT].append(character.handle_keyup)
+        self.keyup_handlers[pg.K_LEFT].append(character.handle_keyup)
+        self.keyup_handlers[pg.K_UP].append(character.handle_keyup)
+
         self.objects.append(character)
 
     def update(self):

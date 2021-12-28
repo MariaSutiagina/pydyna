@@ -87,3 +87,14 @@ def pixel_pos_to_tile(x:int, y:int) -> Tuple:
 def pixel_pos_to_cell(x:int, y:int) -> Tuple:
     return (x // DX, y // DY)
 
+def get_opposite_direction(direction:Direction):
+    if direction == Direction.UP:
+        return Direction.DOWN
+    elif direction == Direction.DOWN:
+        return Direction.UP
+    elif direction == Direction.LEFT:
+        return Direction.RIGHT
+    elif direction == Direction.RIGHT:
+        return Direction.LEFT
+    return Direction.NONE
+
