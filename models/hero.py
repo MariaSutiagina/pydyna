@@ -2,7 +2,6 @@ from typing import Sequence
 import pygame as pg
 from models.customcharacter import CustomCharacter
 from utils.types import Direction
-from utils.utils import get_opposite_direction
 
 class Hero(CustomCharacter):
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
@@ -30,7 +29,6 @@ class Hero(CustomCharacter):
 
     def compute_direction(self) -> Direction:
         return self.key_to_direction(self.state.command.key)
-
 
     def update_state(self):
         speed = self.compute_speed()

@@ -1,31 +1,20 @@
-import pygame
 import sys
-
-from collections import defaultdict
-
+import pygame
 
 class Game:
-    def __init__(self, caption, width, height, back_image_filename, frame_rate):
-        self.background_image = None #pygame.image.load(back_image_filename)
+    def __init__(self, frame_rate, statemodel):
         self.frame_rate = frame_rate
-        self.game_over = False
-        self.objects = []
-        pygame.mixer.init(44100, -16, 2, 4096)
-        pygame.init()
-        pygame.font.init()
-        self.surface = pygame.display.set_mode((width, height))
-        pygame.display.set_caption(caption)
-        self.clock = pygame.time.Clock()
-        self.keydown_handlers = defaultdict(list)
-        self.keyup_handlers = defaultdict(list)
-        self.mouse_handlers = []
+        self.statemodel = statemodel
+
+    def get_state(self):
+        return None
 
     def update(self):
-        for o in self.objects:
+        for o in self.get_state().objects:
             o.update_state()
 
     def draw(self):
-        for o in self.objects:
+        for o in self.get_state().objects:
             o.draw(self.surface)
 
     def handle_events(self):
@@ -34,20 +23,17 @@ class Game:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
-                for handler in self.keydown_handlers[event.key]:
+                for handler in self.get_state().keydown_handlers[event.key]:
                     handler(event.key, pygame.key.get_pressed())
             elif event.type == pygame.KEYUP:
-                for handler in self.keyup_handlers[event.key]:
+                for handler in self.get_state().keyup_handlers[event.key]:
                     handler(event.key, pygame.key.get_pressed())
             elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
-                for handler in self.mouse_handlers:
+                for handler in self.get_state().mouse_handlers:
                     handler(event.type, event.pos)
 
     def run(self):
-        while not self.game_over:
-            if self.background_image:
-                self.surface.blit(self.background_image, (0, 0))
-
+        while not self.statemodel.is_game_state_QuitGame():
             self.handle_events()
             self.update()
             self.draw()
