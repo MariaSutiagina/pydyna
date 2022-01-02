@@ -1,5 +1,6 @@
 from typing import Sequence
 import pygame as pg
+
 from pygame import Surface
 from models.customobject import CustomObject
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH
@@ -11,7 +12,7 @@ class TitleObject(CustomObject):
 
     def get_image(self) -> Surface:
         color = (128, 0, 0)
-        surface = pg.Surface(self.right, pg.SRCALPHA)        
+        surface = pg.Surface((self.right, self.bottom), pg.SRCALPHA)        
         surface.fill(color)
 
         return surface
@@ -23,4 +24,6 @@ class TitleObject(CustomObject):
         self.state.statemodel.title_menu()
 
     def mouse_handler(self, type, pos):
-        self.state.statemodel.title_menu()
+        if type == pg.MOUSEBUTTONDOWN:
+            self.state.statemodel.title_menu()
+

@@ -23,4 +23,5 @@ class LevelTitleObject(CustomObject):
         self.state.statemodel.level_round()
 
     def mouse_handler(self, type, pos):
-        self.state.statemodel.level_round()
+        if type == pg.MOUSEBUTTONDOWN:
+            self.state.statemodel.level_round()

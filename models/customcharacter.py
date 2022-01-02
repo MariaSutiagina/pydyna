@@ -8,11 +8,11 @@ from utils.types import Direction
 from utils.characterstate import CharacterState
 
 from models.customobject import CustomObject
-from models.game import Game
+# from models.game import Game
 
 
 class CustomCharacter(CustomObject):
-    def __init__(self, game:Game, state:CharacterState=None, image:Surface=None):
+    def __init__(self, game, state:CharacterState=None, image:Surface=None):
         self.state = state
         self.game = game
         self.image = image
@@ -24,16 +24,6 @@ class CustomCharacter(CustomObject):
     def draw(self, surface:Surface):
         pos = cell_pos_to_pixel(WALL_W + self.state.cellx, WALL_W + self.state.celly)
         surface.blit(self.image, pos)
-
-    def position_in_tile(self, cellx:int, celly:int):
-        if cellx % TILE_SIZE == 0 and celly % TILE_SIZE == 0: 
-            return (Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT)
-        elif cellx % TILE_SIZE == 0:
-            return (Direction.UP, Direction.DOWN)
-        elif celly % TILE_SIZE == 0:
-            return (Direction.LEFT, Direction.RIGHT)
-        else:
-            return Direction.NONE
 
     def compute_position(self, speed:int, direction:Direction) -> Tuple:
         cellx = self.state.cellx

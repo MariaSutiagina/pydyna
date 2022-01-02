@@ -3,8 +3,13 @@ from models.statemodel.gamestate import GameState
 from models.roundtitleobject import RoundTitleObject
 
 class RoundTitleScreen(GameState):
-    def __init__(self, model):
-        super().__init__(model, 'RoundTitleScreen')
+    def __init__(self, game, model):
+        super().__init__(game, model, 'RoundTitleScreen')
+
+    def handle_on_enter(self, eventdata):
+        self.init_objects()
+        self.init_handlers()
+
         self.create_objects()
         self.create_handlers()
 

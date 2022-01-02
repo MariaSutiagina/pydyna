@@ -23,4 +23,5 @@ class RoundTitleObject(CustomObject):
         self.state.statemodel.round_play()
 
     def mouse_handler(self, type, pos):
-        self.state.statemodel.round_play()
+        if type == pg.MOUSEBUTTONDOWN:
+            self.state.statemodel.round_play()

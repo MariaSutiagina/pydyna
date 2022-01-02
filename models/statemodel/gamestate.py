@@ -3,11 +3,16 @@ from collections import defaultdict
 from transitions import State
 
 class GameState(State):
-    def __init__(self, model, name):
-        super().__init__(name, ignore_invalid_triggers=True)
+    def __init__(self, game, model, name):
+        super().__init__(name, ignore_invalid_triggers=True, on_enter=['on_enter'], on_exit=['on_exit'])
         self.statemodel = model
-        self.init_objects()
-        self.init_handlers()
+        self.game = game
+    
+    def handle_on_enter(self, eventdata):
+        pass
+
+    def handle_on_exit(self, eventdata):
+        pass
 
     def init_objects(self):
         self.objects = []
@@ -16,7 +21,7 @@ class GameState(State):
         self.keydown_handlers = defaultdict(list)
         self.keyup_handlers = defaultdict(list)
         self.mouse_handlers = []
-
+        self.dispatcher = None
         
 
         

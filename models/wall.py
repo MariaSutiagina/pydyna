@@ -2,6 +2,7 @@ import pygame as pg
 from typing import Tuple
 
 from pygame.surface import Surface
+from models.level import Level
 from models.tiles import WallCornerTile, WallTile
 from models.customobject import CustomObject
 from utils.types import Side, Corner
@@ -9,8 +10,9 @@ from utils.constants import TILE_SIZE, WALL_W, FIELD_TILES_W, FIELD_TILES_H, CEL
 from utils.utils import wall_tile_size_in_cells, wall_corner_tile_size_in_cells
 
 class WallSide(CustomObject):
-    def __init__(self, side:Side=Side.NONE):
+    def __init__(self, level:Level, side:Side=Side.NONE):
         self.side = side
+        self.level = level
         self.init_geometry()
         super().__init__(self.x, self.y, self.w, self.h)
 
@@ -70,11 +72,12 @@ class WallSide(CustomObject):
 
     def draw(self, surface:Surface):
         for t in range(self.tiles):
-            tile = WallTile(t, self.side, self.get_image())
+            tile = WallTile(self.level, t, self.side, self.get_image())
             tile.draw(surface)
 
 class WallCorners(CustomObject):
-    def __init__(self):
+    def __init__(self, level:Level):
+        self.level = level
         super().__init__(0, 0, 0, 0)
 
     def get_image(self) -> Surface:
@@ -89,19 +92,19 @@ class WallCorners(CustomObject):
         return surface
 
     def draw(self, surface:Surface):
-        WallCornerTile(Corner.LEFT_UPPER, self.get_image()).draw(surface)
-        WallCornerTile(Corner.LEFT_BOTTOM, self.get_image()).draw(surface)
-        WallCornerTile(Corner.RIGHT_UPPER, self.get_image()).draw(surface)
-        WallCornerTile(Corner.RIGHT_BOTTOM, self.get_image()).draw(surface)
+        WallCornerTile(self.level, Corner.LEFT_UPPER, self.get_image()).draw(surface)
+        WallCornerTile(self.level, Corner.LEFT_BOTTOM, self.get_image()).draw(surface)
+        WallCornerTile(self.level, Corner.RIGHT_UPPER, self.get_image()).draw(surface)
+        WallCornerTile(self.level, Corner.RIGHT_BOTTOM, self.get_image()).draw(surface)
 
 class Wall(CustomObject):
-    def __init__(self):
+    def __init__(self, level:Level):
         self.walls = [
-            WallSide(Side.LEFT),
-            WallSide(Side.RIGHT),
-            WallSide(Side.UP),
-            WallSide(Side.DOWN),
-            WallCorners(),
+            WallSide(level, Side.LEFT),
+            WallSide(level, Side.RIGHT),
+            WallSide(level, Side.UP),
+            WallSide(level, Side.DOWN),
+            WallCorners(level),
         ]
 
         super().__init__(0,0,0,0)

@@ -2,6 +2,7 @@ from typing import Sequence
 import pygame as pg
 from models.customcharacter import CustomCharacter
 from utils.types import Direction
+from utils.utils import position_in_tile, position_collided
 
 class Hero(CustomCharacter):
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
@@ -34,13 +35,13 @@ class Hero(CustomCharacter):
         speed = self.compute_speed()
         old_position = (self.state.cellx, self.state.celly)
         position = self.compute_position(speed, self.state.direction)
-        limited_position = self.game.field.get_limited_position(old_position, position, self.state)
+        limited_position = position_collided(old_position, position, self.game.get_state().roundobject.level)
         if limited_position[0] != position[0] or limited_position[1] != position[1]:
             position = limited_position
         
         direction = Direction.NONE
         new_direction = self.compute_direction()
-        if new_direction in self.position_in_tile(*position) or \
+        if new_direction in position_in_tile(*position) or \
               new_direction == Direction.NONE:
             direction = new_direction
             print(f'new direction = {direction}')

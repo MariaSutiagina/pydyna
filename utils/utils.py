@@ -1,7 +1,7 @@
-from typing import Tuple
+from typing import Tuple, List
 
 from utils.types import Direction, Side, Corner
-from utils.constants import DX, DY, TILE_SIZE, WALL_W, FIELD_HEIGHT_INNER, FIELD_WIDTH_INNER
+from utils.constants import DX, DY, TILE_SIZE, WALL_W, FIELD_HEIGHT_INNER, FIELD_WIDTH_INNER, FIELD_TILES_H, FIELD_TILES_W
 
 def make_step(speed:int, direction:Direction) -> Tuple:
     if direction == Direction.LEFT:
@@ -97,4 +97,84 @@ def get_opposite_direction(direction:Direction):
     elif direction == Direction.RIGHT:
         return Direction.LEFT
     return Direction.NONE
+
+def is_position_in_tile(cellx:int, celly:int, mode:int=0):
+    if mode == 0:
+        return cellx % TILE_SIZE == 0 and celly % TILE_SIZE == 0
+    elif mode == 1:
+        return cellx % TILE_SIZE == 0
+    elif mode == 2:
+        return celly % TILE_SIZE == 0
+    else:
+        raise Exception('mode should be in [0, 1, 2]')
+
+
+def position_in_tile(cellx:int, celly:int):
+    if is_position_in_tile(cellx, celly): 
+        return (Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT)
+    elif is_position_in_tile(cellx, celly, 1):
+        return (Direction.UP, Direction.DOWN)
+    elif is_position_in_tile(cellx, celly, 2):
+        return (Direction.LEFT, Direction.RIGHT)
+    else:
+        return Direction.NONE
+
+def is_collided(cellx, celly, o_cellx, o_celly) -> Side:
+    if cellx + TILE_SIZE > o_cellx and cellx < o_cellx and celly == o_celly:
+        return Side.RIGHT
+    elif cellx < o_cellx + TILE_SIZE and cellx + TILE_SIZE > o_cellx + TILE_SIZE and celly == o_celly:
+        return Side.LEFT
+    elif celly + TILE_SIZE > o_celly and celly < o_celly and cellx == o_cellx:
+        return Side.DOWN
+    elif celly < o_celly + TILE_SIZE and celly + TILE_SIZE > o_celly + TILE_SIZE and cellx == o_cellx: 
+        return Side.UP
+    else: 
+        return Side.NONE 
+
+def get_collided(cellx:int, celly:int, obstacles:List):
+    collided = []
+    for o in obstacles:
+        side = is_collided(cellx, celly, o[0] * TILE_SIZE, o[1] * TILE_SIZE)
+        if side != Side.NONE:
+            collided.append((o, side))
+    return collided
+
+def position_collided(old_position:Tuple, new_position:Tuple, level) -> Tuple:
+    posx  = new_position[0]
+    posy = new_position[1]
+
+    oldposx = old_position[0]
+    oldposy = old_position[1]
+    if is_position_in_tile(oldposx, oldposy):
+        collided = get_collided(posx, posy, level.get_neighbour_obstacle_tiles(oldposx, oldposy))
+        if len(collided) > 0:
+            pos = collided[0][0]
+            side = collided[0][1]
+            if side == Side.RIGHT:
+                posx = (pos[0] - 1) * TILE_SIZE
+            elif side == Side.LEFT:
+                posx = (pos[0] + 1) * TILE_SIZE
+            elif side == Side.DOWN:
+                posy = (pos[1] - 1) * TILE_SIZE
+            elif side == Side.UP:
+                posy = (pos[1] + 1) * TILE_SIZE
+
+    if posx < 0:
+        posx = 0
+    if posy < 0:
+        posy = 0
+
+    limitx = (FIELD_TILES_W - 1)* TILE_SIZE
+    if posx > limitx:
+        posx = limitx
+
+    limity = (FIELD_TILES_H - 1) * TILE_SIZE
+    if posy > limity:
+        posy = limity
+    
+    
+    return (posx, posy)
+
+
+
 
