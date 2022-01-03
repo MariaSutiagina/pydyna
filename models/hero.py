@@ -1,10 +1,16 @@
 from typing import Sequence
 import pygame as pg
+from pygame.surface import Surface
 from models.customcharacter import CustomCharacter
+from utils.characterstate import CharacterState
 from utils.types import Direction
 from utils.utils import position_in_tile, position_collided
 
 class Hero(CustomCharacter):
+    def __init__(self, game, state:CharacterState=None, image:Surface=None):
+        state.bombs_count = state.bombs_capacity
+        super().__init__(game, state, image)
+
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
         self.state.command.key = key
 

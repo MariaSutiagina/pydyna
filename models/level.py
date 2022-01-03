@@ -113,6 +113,20 @@ class Level:
                 neighbours.append((tilex, tiley + 1))
         return neighbours
 
+    def remove_obstacles(self, cells):
+        for c in cells:
+            v = self.layout[c[1]][c[0]]
+            if v > 0:
+                v -= 1
+                self.layout[c[1]][c[0]] = v
+                if v == 0:
+                    del self.bricks[c]
+                    self.floor[c] = 0
+            
+
+            
+
+
 
 
 

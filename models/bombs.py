@@ -32,7 +32,7 @@ class Bombs(CustomObject):
         self.bombs.append(value)
 
     def remove(self, value):
-        self.monsters.remove(value)
+        self.bombs.remove(value)
 
     def get_rects(self):
         rects = []

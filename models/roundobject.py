@@ -82,6 +82,7 @@ class RoundObject(CustomObject):
                'is_monster': False,
                'is_hero': True,
                'is_bomb': False,
+               'bombs_capacity': 3,
                'speed': 1,
                'direction': Direction.NONE,
                'old_direction': Direction.NONE
@@ -124,6 +125,13 @@ class RoundObject(CustomObject):
         bomb = Bomb(self.game, CharacterState(state), self.get_bomb_image())
         self.level.bombs.append(bomb)
         self.objects.append(bomb)
+
+        self.hero.state.bombs_count -= 1
+    
+    def remove_bomb(self, bomb):
+        self.objects.remove(bomb)
+        self.level.bombs.remove(bomb)
+        self.hero.state.bombs_count += 1
 
     def draw(self, surface:Surface):
         if not self.paused:
@@ -168,5 +176,6 @@ class RoundObject(CustomObject):
         elif key == pg.K_p:
             self.paused = not self.paused
         elif key == pg.K_SPACE:
-            self.set_bomb()
+            if self.hero.state.bombs_count > 0:
+                self.set_bomb()
 
