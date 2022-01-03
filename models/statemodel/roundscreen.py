@@ -22,4 +22,6 @@ class RoundScreen(GameState):
     def create_handlers(self):
         self.keydown_handlers[pg.K_ESCAPE].append(self.roundobject.handle_keydown)
         self.keydown_handlers[pg.K_p].append(self.roundobject.handle_keydown)
+        self.keydown_handlers[pg.K_SPACE].append(self.roundobject.handle_keydown)
+        self.keydown_handlers[pg.K_RETURN].append(self.roundobject.handle_keydown)
 

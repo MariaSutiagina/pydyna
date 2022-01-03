@@ -9,7 +9,7 @@ class Game:
     def __init__(self, frame_rate, statemodel):
         self.frame_rate = frame_rate
         self.statemodel = statemodel
-        self.level = Level(self, 1, 1)
+        # self.level = Level(self, 1, 1)
 
     def get_state(self):
         return None

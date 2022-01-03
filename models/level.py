@@ -1,3 +1,4 @@
+from models.bombs import Bombs
 from models.monsters import Monsters
 from utils.constants import DB_FILENAME, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE
 from utils.environment import Environment
@@ -9,7 +10,11 @@ class Level:
         self.round = round
         self.game = game
 
+        self.create_bombs()
         self.extract_data()
+
+    def create_bombs(self):
+        self.bombs = Bombs(self.game)
 
     def extract_layout(self, data):
         self.layout = []
@@ -86,6 +91,25 @@ class Level:
                 neighbours.append((tilex, tiley - 1))
         if tiley < FIELD_TILES_H - 1:
             if self.layout[tiley + 1][tilex] > 0:
+                neighbours.append((tilex, tiley + 1))
+        return neighbours
+
+
+    def get_neighbour_free_tiles(self, cellx:int, celly:int):
+        tilex = cellx // TILE_SIZE
+        tiley = celly // TILE_SIZE
+        neighbours = []
+        if tilex > 0:
+            if self.layout[tiley][tilex - 1] < 255:
+                neighbours.append((tilex - 1, tiley))
+        if tilex < FIELD_TILES_W - 1:
+            if self.layout[tiley][tilex + 1] < 255:
+                neighbours.append((tilex + 1, tiley))
+        if tiley > 0:
+            if self.layout[tiley - 1][tilex] < 255:
+                neighbours.append((tilex, tiley - 1))
+        if tiley < FIELD_TILES_H - 1:
+            if self.layout[tiley + 1][tilex] <255:
                 neighbours.append((tilex, tiley + 1))
         return neighbours
 

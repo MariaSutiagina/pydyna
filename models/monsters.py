@@ -25,6 +25,7 @@ class Monsters(CustomObject):
             state.alive = True
             state.is_monster = True
             state.is_hero = False
+            state.is_bomb = False
             state.direction = random.choice([Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN])
             state.old_direction = state.direction
             self.monsters.append(Monster(self.game, state))

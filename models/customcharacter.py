@@ -3,7 +3,7 @@ import pygame as pg
 from pygame import Surface
 
 from utils.utils import cell_pos_to_pixel, tile_size_in_pixel
-from utils.constants import FADE_TIMEOUT, WALL_W, DIRECTION_CHANGE_FACTOR, TILE_SIZE
+from utils.constants import FADE_TIMEOUT, GAME_FONT_PATH, WALL_W, DIRECTION_CHANGE_FACTOR, TILE_SIZE
 from utils.types import Direction
 from utils.characterstate import CharacterState
 
@@ -13,6 +13,7 @@ from models.customobject import CustomObject
 
 class CustomCharacter(CustomObject):
     def __init__(self, game, state:CharacterState=None, image:Surface=None):
+        self.font = pg.font.Font(GAME_FONT_PATH, 30)
         self.state = state
         self.game = game
         self.image = image

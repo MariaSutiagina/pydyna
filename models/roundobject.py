@@ -2,6 +2,7 @@ import random
 from typing import Sequence
 import pygame as pg
 from pygame import Rect, Surface
+from models.bomb import Bomb
 from models.customobject import CustomObject
 from models.hero import Hero
 from models.level import Level
@@ -58,11 +59,20 @@ class RoundObject(CustomObject):
         
         return surface
 
+    def get_bomb_image(self):
+        width = cfg.TILE_WIDTH_IN_PIXEL
+        height = cfg.TILE_HEIGHT_IN_PIXEL
+        surface = pg.Surface((width, height), pg.SRCALPHA, 32)        
+        surface = surface.convert_alpha()
+        pg.draw.circle(surface, (0x1d, 0x1c, 0xd6), (width // 2, height // 2), width //2, width=0)
+        
+        return surface
+
     def create_characters(self):
-        self.objects.append(self.game.level.monsters)
+        self.objects.append(self.level.monsters)
 
     def create_hero(self):
-        free_floor = set(self.game.level.floor.items()) - set(self.game.level.monster_bricks)
+        free_floor = set(self.level.floor.items()) - set(self.level.monster_bricks)
         hero_pos = random.choice(list(free_floor))
         state = {
                'cellx': cfg.TILE_SIZE * hero_pos[0][0],
@@ -71,6 +81,7 @@ class RoundObject(CustomObject):
                'lives': 3,
                'is_monster': False,
                'is_hero': True,
+               'is_bomb': False,
                'speed': 1,
                'direction': Direction.NONE,
                'old_direction': Direction.NONE
@@ -92,6 +103,28 @@ class RoundObject(CustomObject):
         self.hero = character
 
 
+    def set_bomb(self):
+        hr = self.hero.state.rect
+        rect = pg.Rect((hr.left // cfg.TILE_SIZE) * cfg.TILE_SIZE, (hr.top // cfg.TILE_SIZE) * cfg.TILE_SIZE, cfg.TILE_SIZE, cfg.TILE_SIZE)
+        state = {
+               'cellx': rect.left,
+               'celly': rect.top,
+               'lives': 3,
+               'is_monster': False,
+               'is_hero': False,
+               'is_bomb': True,
+               'explosion_timeout': pg.time.get_ticks() + cfg.EXPLOSION_TIMEOUT,
+               'explosion_size': 1,
+               'explosion': False,
+               'speed': 0,
+               'direction': Direction.NONE,
+               'old_direction': Direction.NONE
+               }
+
+        bomb = Bomb(self.game, CharacterState(state), self.get_bomb_image())
+        self.level.bombs.append(bomb)
+        self.objects.append(bomb)
+
     def draw(self, surface:Surface):
         if not self.paused:
             for o in self.objects:
@@ -106,7 +139,7 @@ class RoundObject(CustomObject):
 
     def process_collisions(self):
         hero_rect = self.hero.state.rect
-        monster_rects = self.game.level.monsters.get_rects()
+        monster_rects = self.level.monsters.get_rects()
         if monster_rects:
             collisions = hero_rect.collidelist(monster_rects)
             if isinstance(collisions,list):
@@ -116,7 +149,7 @@ class RoundObject(CustomObject):
                         self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
                         break
             else:
-                if self.check_collision(hero_rect, monster_rects[collisions]):
+                if collisions >= 0 and self.check_collision(hero_rect, monster_rects[collisions]):
                     self.hero.state.alive = False
                     if not self.hero.state.time_to_hide:
                         self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
@@ -134,4 +167,6 @@ class RoundObject(CustomObject):
             self.state.statemodel.play_menu()
         elif key == pg.K_p:
             self.paused = not self.paused
+        elif key == pg.K_SPACE:
+            self.set_bomb()
 
