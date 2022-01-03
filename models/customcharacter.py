@@ -3,7 +3,7 @@ import pygame as pg
 from pygame import Surface
 
 from utils.utils import cell_pos_to_pixel, tile_size_in_pixel
-from utils.constants import WALL_W, DIRECTION_CHANGE_FACTOR, TILE_SIZE
+from utils.constants import FADE_TIMEOUT, WALL_W, DIRECTION_CHANGE_FACTOR, TILE_SIZE
 from utils.types import Direction
 from utils.characterstate import CharacterState
 
@@ -19,11 +19,19 @@ class CustomCharacter(CustomObject):
 
         pos = cell_pos_to_pixel(WALL_W + state.cellx, WALL_W + state.celly)
         sz = tile_size_in_pixel()
+        self.state.rect = pg.Rect(state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
         super().__init__(*pos, *sz)
 
     def draw(self, surface:Surface):
+        if not self.state.alive:
+            if self.state.time_to_hide:
+                share = (self.state.time_to_hide - pg.time.get_ticks()) / FADE_TIMEOUT
+                self.image.set_alpha(int(255 * share))
+
         pos = cell_pos_to_pixel(WALL_W + self.state.cellx, WALL_W + self.state.celly)
         surface.blit(self.image, pos)
+        
+
 
     def compute_position(self, speed:int, direction:Direction) -> Tuple:
         cellx = self.state.cellx
@@ -54,6 +62,7 @@ class CustomCharacter(CustomObject):
         self.state.cellx = position[0]
         self.state.celly = position[1]
         self.state.speed = speed
+        self.state.rect = pg.Rect(position[0], position[1], TILE_SIZE, TILE_SIZE)
 
         # if direction != self.state.old_direction or direction == Direction.NONE:
         #     self.state.old_direction = self.state.direction

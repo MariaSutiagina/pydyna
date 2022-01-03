@@ -22,6 +22,9 @@ class Monsters(CustomObject):
             state.cellx = pos[0] * TILE_SIZE
             state.celly = pos[1] * TILE_SIZE
             state.speed = 1
+            state.alive = True
+            state.is_monster = True
+            state.is_hero = False
             state.direction = random.choice([Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN])
             state.old_direction = state.direction
             self.monsters.append(Monster(self.game, state))
@@ -47,6 +50,11 @@ class Monsters(CustomObject):
     def remove(self, value):
         self.monsters.remove(value)
 
+    def get_rects(self):
+        rects = []
+        for m in self.monsters:
+            rects.append(m.state.rect)
+        return rects
 
     def update_state(self):
         for monster in self.monsters:

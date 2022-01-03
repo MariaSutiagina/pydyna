@@ -32,26 +32,28 @@ class Hero(CustomCharacter):
         return self.key_to_direction(self.state.command.key)
 
     def update_state(self):
-        speed = self.compute_speed()
-        old_position = (self.state.cellx, self.state.celly)
-        position = self.compute_position(speed, self.state.direction)
-        limited_position = position_collided(old_position, position, self.game.get_state().roundobject.level)
-        if limited_position[0] != position[0] or limited_position[1] != position[1]:
-            position = limited_position
-        
-        direction = Direction.NONE
-        new_direction = self.compute_direction()
-        if new_direction in position_in_tile(*position) or \
-              new_direction == Direction.NONE:
-            direction = new_direction
-            print(f'new direction = {direction}')
+        if self.state.alive == True:
+            speed = self.compute_speed()
+            old_position = (self.state.cellx, self.state.celly)
+            position = self.compute_position(speed, self.state.direction)
+            limited_position = position_collided(old_position, position, self.game.get_state().roundobject.level)
+            if limited_position[0] != position[0] or limited_position[1] != position[1]:
+                position = limited_position
+            
+            direction = Direction.NONE
+            new_direction = self.compute_direction()
+            if new_direction in position_in_tile(*position) or \
+                new_direction == Direction.NONE:
+                direction = new_direction
+                print(f'new direction = {direction}')
+            else:
+                direction = self.state.old_direction
+                print(f'old direction = {direction}')        
+
+            self.compute_and_update_state(position, speed, direction)
         else:
-            direction = self.state.old_direction
-            print(f'old direction = {direction}')
-
-        
-
-        self.compute_and_update_state(position, speed, direction)
+            if pg.time.get_ticks() >= self.state.time_to_hide:
+                self.game.statemodel.play_next_round()            
 
 
             

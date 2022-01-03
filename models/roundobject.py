@@ -1,7 +1,7 @@
 import random
 from typing import Sequence
 import pygame as pg
-from pygame import Surface
+from pygame import Rect, Surface
 from models.customobject import CustomObject
 from models.hero import Hero
 from models.level import Level
@@ -12,6 +12,7 @@ from utils.characterstate import CharacterState
 
 import utils.constants as cfg
 from utils.types import Direction
+from utils.utils import collision_rect
 
 
 class RoundObject(CustomObject):
@@ -66,6 +67,10 @@ class RoundObject(CustomObject):
         state = {
                'cellx': cfg.TILE_SIZE * hero_pos[0][0],
                'celly': cfg.TILE_SIZE * hero_pos[0][1],
+               'alive': True,
+               'lives': 3,
+               'is_monster': False,
+               'is_hero': True,
                'speed': 1,
                'direction': Direction.NONE,
                'old_direction': Direction.NONE
@@ -84,6 +89,7 @@ class RoundObject(CustomObject):
         self.state.keyup_handlers[pg.K_UP].append(character.handle_keyup)
 
         self.objects.append(character)
+        self.hero = character
 
 
     def draw(self, surface:Surface):
@@ -91,10 +97,37 @@ class RoundObject(CustomObject):
             for o in self.objects:
                 o.draw(surface)
 
+    def check_collision(self, r1:Rect, r2:Rect):
+        rect = collision_rect(r1, r2)
+        if rect:
+            return cfg.TILE_SIZE * cfg.TILE_SIZE / rect.width * rect.height >= 10
+        else:
+            return False
+
+    def process_collisions(self):
+        hero_rect = self.hero.state.rect
+        monster_rects = self.game.level.monsters.get_rects()
+        if monster_rects:
+            collisions = hero_rect.collidelist(monster_rects)
+            if isinstance(collisions,list):
+                for c in collisions:
+                    if self.check_collision(hero_rect, monster_rects[c]):
+                        self.hero.state.alive = False
+                        self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+                        break
+            else:
+                if self.check_collision(hero_rect, monster_rects[collisions]):
+                    self.hero.state.alive = False
+                    if not self.hero.state.time_to_hide:
+                        self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+
+
     def update_state(self):
         if not self.paused:
             for o in self.objects:
                 o.update_state()
+
+            self.process_collisions()
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
         if key == pg.K_ESCAPE:

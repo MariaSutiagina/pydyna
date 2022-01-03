@@ -1,5 +1,7 @@
 from typing import Tuple, List
 
+from pygame import Rect
+
 from utils.types import Direction, Side, Corner
 from utils.constants import DX, DY, TILE_SIZE, WALL_W, FIELD_HEIGHT_INNER, FIELD_WIDTH_INNER, FIELD_TILES_H, FIELD_TILES_W
 
@@ -119,7 +121,18 @@ def position_in_tile(cellx:int, celly:int):
     else:
         return Direction.NONE
 
-def is_collided(cellx, celly, o_cellx, o_celly) -> Side:
+
+def collision_rect(rect1:Rect, rect2:Rect):
+    left = max(rect1.left, rect2.left)
+    right = min(rect1.right, rect2.right)
+    top = max(rect1.top, rect2.top)
+    bottom = min(rect1.bottom, rect2.bottom)
+    if left < right and top < bottom:
+        return Rect(left, top, right - left, bottom - top)
+    else:
+         return None
+
+def get_tiles_collision(cellx, celly, o_cellx, o_celly) -> Side:
     if cellx + TILE_SIZE > o_cellx and cellx < o_cellx and celly == o_celly:
         return Side.RIGHT
     elif cellx < o_cellx + TILE_SIZE and cellx + TILE_SIZE > o_cellx + TILE_SIZE and celly == o_celly:
@@ -131,10 +144,10 @@ def is_collided(cellx, celly, o_cellx, o_celly) -> Side:
     else: 
         return Side.NONE 
 
-def get_collided(cellx:int, celly:int, obstacles:List):
+def get_collided_tiles(cellx:int, celly:int, obstacles:List):
     collided = []
     for o in obstacles:
-        side = is_collided(cellx, celly, o[0] * TILE_SIZE, o[1] * TILE_SIZE)
+        side = get_tiles_collision(cellx, celly, o[0] * TILE_SIZE, o[1] * TILE_SIZE)
         if side != Side.NONE:
             collided.append((o, side))
     return collided
@@ -146,7 +159,7 @@ def position_collided(old_position:Tuple, new_position:Tuple, level) -> Tuple:
     oldposx = old_position[0]
     oldposy = old_position[1]
     if is_position_in_tile(oldposx, oldposy):
-        collided = get_collided(posx, posy, level.get_neighbour_obstacle_tiles(oldposx, oldposy))
+        collided = get_collided_tiles(posx, posy, level.get_neighbour_obstacle_tiles(oldposx, oldposy))
         if len(collided) > 0:
             pos = collided[0][0]
             side = collided[0][1]
