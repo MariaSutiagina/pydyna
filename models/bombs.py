@@ -1,11 +1,7 @@
-import random
 from pygame.surface import Surface
 from models.customobject import CustomObject
-from models.monster import Monster
-from utils.characterstate import CharacterState
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, TILE_SIZE
 from utils.utils import tile_pos_to_cell
-from utils.types import Direction
 
 class Bombs(CustomObject):
     def __init__(self, game):
@@ -26,7 +22,7 @@ class Bombs(CustomObject):
         return self.bombs[key]
 
     def __setitem__(self, key, value):
-        self.monsters[key] = value
+        self.bombs[key] = value
 
     def append(self, value):
         self.bombs.append(value)

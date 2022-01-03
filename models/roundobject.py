@@ -2,7 +2,7 @@ import random
 from typing import Sequence
 import pygame as pg
 from pygame import Rect, Surface
-from models.bomb import Bomb
+from models.bomb import Bomb, BombRect
 from models.customobject import CustomObject
 from models.hero import Hero
 from models.level import Level
@@ -106,10 +106,11 @@ class RoundObject(CustomObject):
 
     def set_bomb(self):
         hr = self.hero.state.rect
-        rect = pg.Rect((hr.left // cfg.TILE_SIZE) * cfg.TILE_SIZE, (hr.top // cfg.TILE_SIZE) * cfg.TILE_SIZE, cfg.TILE_SIZE, cfg.TILE_SIZE)
+        rect = BombRect(None, round(hr.left / cfg.TILE_SIZE) * cfg.TILE_SIZE, round(hr.top / cfg.TILE_SIZE) * cfg.TILE_SIZE, cfg.TILE_SIZE, cfg.TILE_SIZE)
         state = {
                'cellx': rect.left,
                'celly': rect.top,
+               'rect': rect, 
                'lives': 3,
                'is_monster': False,
                'is_hero': False,
@@ -145,22 +146,40 @@ class RoundObject(CustomObject):
         else:
             return False
 
-    def process_collisions(self):
+    def process_hero_collisions(self, monster_rects):
         hero_rect = self.hero.state.rect
+        collisions = hero_rect.collidelist(monster_rects)
+        if isinstance(collisions,list):
+            for c in collisions:
+                if self.check_collision(hero_rect, monster_rects[c]):
+                    self.hero.state.alive = False
+                    self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+                    break
+        else:
+            if collisions >= 0 and self.check_collision(hero_rect, monster_rects[collisions]):
+                self.hero.state.alive = False
+                if not self.hero.state.time_to_hide:
+                    self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+
+    def process_bomb_collisions(self, monster_rects):
+        rects = self.level.bombs.get_rects()
+        for i, r in enumerate(monster_rects):
+            collisions = r.collidelist(rects)
+            if isinstance(collisions, list) and len(collisions) > 0:
+                for c in collisions:
+                    if rects[c].bomb.state.explosion:
+                        self.level.monsters.remove(self.level.monsters[i])
+            else:     
+                if collisions >= 0 and rects[collisions].bomb.state.explosion:
+                   self.level.monsters.remove(self.level.monsters[i])
+
+    def process_collisions(self):
         monster_rects = self.level.monsters.get_rects()
         if monster_rects:
-            collisions = hero_rect.collidelist(monster_rects)
-            if isinstance(collisions,list):
-                for c in collisions:
-                    if self.check_collision(hero_rect, monster_rects[c]):
-                        self.hero.state.alive = False
-                        self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
-                        break
-            else:
-                if collisions >= 0 and self.check_collision(hero_rect, monster_rects[collisions]):
-                    self.hero.state.alive = False
-                    if not self.hero.state.time_to_hide:
-                        self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+            self.process_hero_collisions(monster_rects)
+            self.process_bomb_collisions(monster_rects)
+
+            
 
 
     def update_state(self):

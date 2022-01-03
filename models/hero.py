@@ -3,12 +3,14 @@ import pygame as pg
 from pygame.surface import Surface
 from models.customcharacter import CustomCharacter
 from utils.characterstate import CharacterState
+from utils.constants import TILE_SIZE
 from utils.types import Direction
 from utils.utils import position_in_tile, position_collided
 
 class Hero(CustomCharacter):
     def __init__(self, game, state:CharacterState=None, image:Surface=None):
         state.bombs_count = state.bombs_capacity
+        state.rect = pg.Rect(state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
         super().__init__(game, state, image)
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):

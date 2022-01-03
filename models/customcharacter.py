@@ -20,7 +20,6 @@ class CustomCharacter(CustomObject):
 
         pos = cell_pos_to_pixel(WALL_W + state.cellx, WALL_W + state.celly)
         sz = tile_size_in_pixel()
-        self.state.rect = pg.Rect(state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
         super().__init__(*pos, *sz)
 
     def draw(self, surface:Surface):

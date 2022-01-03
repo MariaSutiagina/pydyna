@@ -34,6 +34,6 @@ DB_FILENAME = 'resources/data/levels'
 
 FADE_TIMEOUT = 2000
 EXPLOSION_TIMEOUT = 3000
-EXPLOSION_DURATION = 2000
+EXPLOSION_DURATION = 500
 
 GAME_FONT_PATH = './resources/fonts/Elfboyclassic.ttf'

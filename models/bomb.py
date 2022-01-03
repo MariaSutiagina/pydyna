@@ -1,12 +1,31 @@
-from typing import Sequence
+from typing import Sequence, List, Tuple
 import pygame as pg
+from pygame.rect import Rect
 from pygame.surface import Surface
 from models.customcharacter import CustomCharacter
 from utils.constants import CELL_H, CELL_W, EXPLOSION_DURATION, FADE_TIMEOUT, TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
 from utils.types import Direction
 from utils.utils import cell_pos_to_pixel, position_in_tile, position_collided
 
+class BombRect(Rect):
+    def __init__(self, bomb, left:float, top:float, width:float, height:float):
+        self.bomb = bomb
+        super().__init__(left, top, width, height)
+
+    # def __init__(self, bomb, left_top:List[float], width_height:List[float]):
+    #     self.bomb = bomb
+    #     super().__init__(left_top, width_height)
+
+    # def __init__(self, bomb, rect:Rect):
+    #     self.bomb = bomb
+    #     super().__init__(rect)
+
+
 class Bomb(CustomCharacter):
+    def __init__(self, game, state, image):
+        state.rect.bomb = self
+        super().__init__(game, state, image)
+
     def get_level(self):
         return self.game.get_state().roundobject.level
 
@@ -74,7 +93,7 @@ class Bomb(CustomCharacter):
     def make_explosion_rects(self, cells):
         rects = []
         for c in cells:
-            rect = pg.Rect(c[0] * TILE_SIZE, c[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+            rect = BombRect(self, c[0] * TILE_SIZE, c[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE)
             rects.append(rect)
         self.state.rects = rects
 

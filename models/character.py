@@ -1,12 +1,16 @@
+import pygame as pg
 from typing import Tuple
 import random
 
 from models.customcharacter import CustomCharacter
 from utils.types import Direction
-from utils.constants import DIRECTION_CHANGE_FACTOR
+from utils.constants import DIRECTION_CHANGE_FACTOR, TILE_SIZE
 from utils.utils import get_opposite_direction, position_in_tile, position_collided
 
 class Character(CustomCharacter):
+    def __init__(self, game, state, image):
+        state.rect = pg.Rect(state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
+        super().__init__(game, state, image)
 
     def select_new_direction(self, direction):
         return random.choice([Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT])
