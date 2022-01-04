@@ -116,7 +116,7 @@ class Level:
             if self.layout[tiley + 1][tilex] < BRICK_SOLID_TYPE:
                 neighbours.append((tilex, tiley + 1))
         return neighbours
-
+         
     def remove_obstacles(self, cells):
         for c in cells:
             v = self.layout[c[1]][c[0]]

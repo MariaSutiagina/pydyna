@@ -5,7 +5,7 @@ from models.customcharacter import CustomCharacter
 from utils.characterstate import CharacterState
 from utils.constants import TILE_SIZE
 from utils.types import Direction
-from utils.utils import position_in_tile, position_collided
+from utils.utils import exit_position_collided, position_in_tile, position_collided
 
 class Hero(CustomCharacter):
     def __init__(self, game, state:CharacterState=None, image:Surface=None):
@@ -57,7 +57,9 @@ class Hero(CustomCharacter):
             else:
                 direction = self.state.old_direction
                 print(f'old direction = {direction}')        
-
+            
+            if exit_position_collided(position, self.game.get_state().roundobject.level):
+                self.game.statemodel.play_next_round()
             self.compute_and_update_state(position, speed, direction)
         else:
             if pg.time.get_ticks() >= self.state.time_to_hide:

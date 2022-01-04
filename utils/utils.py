@@ -3,7 +3,7 @@ from typing import Tuple, List
 from pygame import Rect
 
 from utils.types import Direction, Side, Corner
-from utils.constants import DX, DY, TILE_SIZE, WALL_W, FIELD_HEIGHT_INNER, FIELD_WIDTH_INNER, FIELD_TILES_H, FIELD_TILES_W
+from utils.constants import DX, DY, EXIT_TILE_TYPE, TILE_SIZE, WALL_W, FIELD_HEIGHT_INNER, FIELD_WIDTH_INNER, FIELD_TILES_H, FIELD_TILES_W
 
 def make_step(speed:int, direction:Direction) -> Tuple:
     if direction == Direction.LEFT:
@@ -141,6 +141,8 @@ def get_tiles_collision(cellx, celly, o_cellx, o_celly) -> Side:
         return Side.DOWN
     elif celly < o_celly + TILE_SIZE and celly + TILE_SIZE > o_celly + TILE_SIZE and cellx == o_cellx: 
         return Side.UP
+    elif cellx == o_cellx and celly == o_celly:
+        return Side.LEFT # 
     else: 
         return Side.NONE 
 
@@ -152,7 +154,7 @@ def get_collided_tiles(cellx:int, celly:int, obstacles:List):
             collided.append((o, side))
     return collided
 
-def position_collided(old_position:Tuple, new_position:Tuple, level) -> Tuple:
+def position_collided(old_position:Tuple[int], new_position:Tuple[int], level) -> Tuple[int]:
     posx  = new_position[0]
     posy = new_position[1]
 
@@ -189,5 +191,13 @@ def position_collided(old_position:Tuple, new_position:Tuple, level) -> Tuple:
     return (posx, posy)
 
 
+def exit_position_collided(position:Tuple[int], level) -> Tuple[int]:
+    posx  = round(position[0] / TILE_SIZE) * TILE_SIZE
+    posy = round(position[1] / TILE_SIZE) * TILE_SIZE
+    # if is_position_in_tile(posx, posy):
+    exit_tile = level.exit
+    collided = get_collided_tiles(posx, posy, [exit_tile[0]])
+    return  len(collided) > 0 and level.floor[exit_tile[0]] == EXIT_TILE_TYPE
 
+    return False
 

@@ -28,6 +28,10 @@ class Bomb(CustomCharacter):
 
     def get_level(self):
         return self.game.get_state().roundobject.level
+    
+    def get_round(self):
+        return getattr(self.game.get_state(), 'roundobject', None)
+
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
         self.state.command.key = key
@@ -104,7 +108,9 @@ class Bomb(CustomCharacter):
         if self.state.explosion == True:
             if pg.time.get_ticks() >= self.state.explosion_end_timeout:
                 self.state.explosion = False
-                self.game.get_state().roundobject.remove_bomb(self)
+                round = self.get_round()
+                if round:
+                    round.remove_bomb(self)
         else:
             if pg.time.get_ticks() >= self.state.explosion_timeout:
                 self.state.explosion = True

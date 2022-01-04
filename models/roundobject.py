@@ -163,15 +163,19 @@ class RoundObject(CustomObject):
 
     def process_bomb_collisions(self, monster_rects):
         rects = self.level.bombs.get_rects()
+        monsters_to_remove = []
         for i, r in enumerate(monster_rects):
             collisions = r.collidelist(rects)
             if isinstance(collisions, list) and len(collisions) > 0:
                 for c in collisions:
                     if rects[c].bomb.state.explosion:
-                        self.level.monsters.remove(self.level.monsters[i])
+                        monsters_to_remove.append(self.level.monsters[i])
             else:     
                 if collisions >= 0 and rects[collisions].bomb.state.explosion:
-                   self.level.monsters.remove(self.level.monsters[i])
+                    monsters_to_remove.append(self.level.monsters[i])
+        
+        for m in monsters_to_remove:
+            self.level.monsters.remove(m)
 
     def process_collisions(self):
         monster_rects = self.level.monsters.get_rects()
