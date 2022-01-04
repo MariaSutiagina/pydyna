@@ -179,9 +179,6 @@ class RoundObject(CustomObject):
             self.process_hero_collisions(monster_rects)
             self.process_bomb_collisions(monster_rects)
 
-            
-
-
     def update_state(self):
         if not self.paused:
             for o in self.objects:

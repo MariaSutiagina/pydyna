@@ -1,6 +1,6 @@
 from models.bombs import Bombs
 from models.monsters import Monsters
-from utils.constants import DB_FILENAME, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE
+from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, DB_FILENAME, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE
 from utils.environment import Environment
 import random
 
@@ -28,8 +28,8 @@ class Level:
             for ci, cell in enumerate(row):
                 rowpos[(ci, ri)] = cell
 
-        self.bricks = dict(filter(lambda x: x[1] > 0 and x[1] != 255, rowpos.items()))
-        self.solid = dict(filter(lambda x: x[1] == 255, rowpos.items()))
+        self.bricks = dict(filter(lambda x: x[1] > 0 and x[1] <= BRICK_HARDNESS_MAX, rowpos.items()))
+        self.solid = dict(filter(lambda x: x[1] == BRICK_SOLID_TYPE, rowpos.items()))
 
         treasure_brick = random.choice(list(self.bricks.items()))
         treasure_type = random.randint(1,10)
@@ -81,16 +81,20 @@ class Level:
         tiley = celly // TILE_SIZE
         neighbours = []
         if tilex > 0:
-            if self.layout[tiley][tilex - 1] > 0:
+            lt = self.layout[tiley][tilex - 1]
+            if lt > 0 and lt <= BRICK_HARDNESS_MAX or lt == BRICK_SOLID_TYPE:
                 neighbours.append((tilex - 1, tiley))
         if tilex < FIELD_TILES_W - 1:
-            if self.layout[tiley][tilex + 1] > 0:
+            lt = self.layout[tiley][tilex + 1]
+            if lt > 0  and lt <= BRICK_HARDNESS_MAX or lt == BRICK_SOLID_TYPE:
                 neighbours.append((tilex + 1, tiley))
         if tiley > 0:
-            if self.layout[tiley - 1][tilex] > 0:
+            lt = self.layout[tiley - 1][tilex]
+            if lt > 0 and lt <= BRICK_HARDNESS_MAX or lt == BRICK_SOLID_TYPE:
                 neighbours.append((tilex, tiley - 1))
         if tiley < FIELD_TILES_H - 1:
-            if self.layout[tiley + 1][tilex] > 0:
+            lt = self.layout[tiley + 1][tilex]
+            if lt > 0 and lt <= BRICK_HARDNESS_MAX or lt == BRICK_SOLID_TYPE:
                 neighbours.append((tilex, tiley + 1))
         return neighbours
 
@@ -100,16 +104,16 @@ class Level:
         tiley = celly // TILE_SIZE
         neighbours = []
         if tilex > 0:
-            if self.layout[tiley][tilex - 1] < 255:
+            if self.layout[tiley][tilex - 1] < BRICK_SOLID_TYPE:
                 neighbours.append((tilex - 1, tiley))
         if tilex < FIELD_TILES_W - 1:
-            if self.layout[tiley][tilex + 1] < 255:
+            if self.layout[tiley][tilex + 1] < BRICK_SOLID_TYPE:
                 neighbours.append((tilex + 1, tiley))
         if tiley > 0:
-            if self.layout[tiley - 1][tilex] < 255:
+            if self.layout[tiley - 1][tilex] < BRICK_SOLID_TYPE:
                 neighbours.append((tilex, tiley - 1))
         if tiley < FIELD_TILES_H - 1:
-            if self.layout[tiley + 1][tilex] <255:
+            if self.layout[tiley + 1][tilex] < BRICK_SOLID_TYPE:
                 neighbours.append((tilex, tiley + 1))
         return neighbours
 
@@ -121,7 +125,10 @@ class Level:
                 self.layout[c[1]][c[0]] = v
                 if v == 0:
                     del self.bricks[c]
-                    self.floor[c] = 0
+                    if c == self.exit[0]:
+                        self.floor[c] = EXIT_TILE_TYPE
+                    else:
+                        self.floor[c] = 0
             
 
             
