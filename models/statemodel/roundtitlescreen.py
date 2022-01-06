@@ -4,6 +4,7 @@ from models.roundtitleobject import RoundTitleObject
 
 class RoundTitleScreen(GameState):
     def __init__(self, game, model):
+        self.data = None
         super().__init__(game, model, 'RoundTitleScreen')
 
     def handle_on_enter(self, eventdata):

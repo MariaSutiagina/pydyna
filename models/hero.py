@@ -1,16 +1,26 @@
 from typing import Sequence
 import pygame as pg
+from pygame.event import Event
 from pygame.surface import Surface
 from models.customcharacter import CustomCharacter
 from utils.characterstate import CharacterState
-from utils.constants import TILE_SIZE
-from utils.types import Direction
+from utils.constants import E_EXIT, TILE_SIZE
+from utils.types import Direction, ExitAction
 from utils.utils import exit_position_collided, position_in_tile, position_collided
+import json
+
+class HeroRect(pg.Rect):
+    def __init__(self, hero, left:float, top:float, width:float, height:float):
+        self.hero = hero
+        super().__init__(left, top, width, height)
+
+    def to_json(self):
+        return {'left': self.left, 'top': self.top, 'width': self.width, 'height': self.height}
 
 class Hero(CustomCharacter):
     def __init__(self, game, state:CharacterState=None, image:Surface=None):
         state.bombs_count = state.bombs_capacity
-        state.rect = pg.Rect(state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
+        state.rect = HeroRect(self, state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
         super().__init__(game, state, image)
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
@@ -58,12 +68,15 @@ class Hero(CustomCharacter):
                 direction = self.state.old_direction
                 print(f'old direction = {direction}')        
             
-            if exit_position_collided(position, self.game.get_state().roundobject.level):
-                self.game.statemodel.play_next_round()
+            if self.state.can_exit:
+                if exit_position_collided(position, self.game.get_state().roundobject.level):
+                    pg.event.post(Event(E_EXIT, action=ExitAction.OPEN))
+
             self.compute_and_update_state(position, speed, direction)
+            self.state.rect = HeroRect(self, position[0], position[1], TILE_SIZE, TILE_SIZE)
         else:
             if pg.time.get_ticks() >= self.state.time_to_hide:
-                self.game.statemodel.play_next_round()            
+                pg.event.post(Event(E_EXIT, action=ExitAction.REPLAY))
 
 
             

@@ -22,6 +22,8 @@ class GameState(State):
         self.keyup_handlers = defaultdict(list)
         self.mouse_handlers = []
         self.dispatcher = None
+        self.bomb_handlers = defaultdict(list)
+        self.exit_handlers = defaultdict(list)
         
 
         

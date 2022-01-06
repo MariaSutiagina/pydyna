@@ -4,6 +4,7 @@ from models.leveltitleobject import LevelTitleObject
 
 class LevelTitleScreen(GameState):
     def __init__(self, game, model):
+        self.data = None
         super().__init__(game, model, 'LevelTitleScreen')
 
     def handle_on_enter(self, eventdata):

@@ -1,7 +1,9 @@
 import random
+import json
 from typing import Sequence
 import pygame as pg
 from pygame import Rect, Surface
+from pygame.event import Event
 from models.bomb import Bomb, BombRect
 from models.customobject import CustomObject
 from models.hero import Hero
@@ -12,8 +14,9 @@ from models.monsters import Monsters
 from utils.characterstate import CharacterState
 
 import utils.constants as cfg
-from utils.types import Direction
-from utils.utils import collision_rect
+from utils.statemanager import StateManager
+from utils.types import BombAction, Direction, ExitAction
+from utils.utils import collision_rect, exit_position_collided
 
 
 class RoundObject(CustomObject):
@@ -24,9 +27,6 @@ class RoundObject(CustomObject):
         self.paused = False
         self.create_objects()
 
-    def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
-        pass
-
     def mouse_handler(self, type, pos):
         pass
 
@@ -36,10 +36,15 @@ class RoundObject(CustomObject):
         self.create_wall()
         self.create_field()
         self.create_characters()
-        self.create_hero()
+        self.create_hero(self.state.statemodel.data)
 
     def create_level(self):
-        self.level = Level(self.game, 1, 1)
+        level = '01'
+        round = '01'
+        if self.state.statemodel.data:
+            level = self.state.statemodel.data.level
+            round = self.state.statemodel.data.round
+        self.level = Level(self.game, int(level), int(round))
 
     def create_wall(self):
         self.wall = Wall(self.level)
@@ -71,24 +76,41 @@ class RoundObject(CustomObject):
     def create_characters(self):
         self.objects.append(self.level.monsters)
 
-    def create_hero(self):
-        free_floor = set(self.level.floor.items()) - set(self.level.monster_bricks)
-        hero_pos = random.choice(list(free_floor))
+    def create_new_hero(self):
         state = {
-               'cellx': cfg.TILE_SIZE * hero_pos[0][0],
-               'celly': cfg.TILE_SIZE * hero_pos[0][1],
+               'cellx': 0,
+               'celly': 0,
                'alive': True,
+               'gone': False,
                'lives': 3,
+               'retries': 3,
+               'round': '01',
+               'level': '01', 
                'is_monster': False,
                'is_hero': True,
                'is_bomb': False,
                'bombs_capacity': 3,
+               'can_exit': False,
                'speed': 1,
                'direction': Direction.NONE,
                'old_direction': Direction.NONE
                }
+        return CharacterState(state)
 
-        character = Hero(self.game, CharacterState(state), self.get_hero_image())
+
+    def create_hero(self, hero_state=None):
+        free_floor = set(self.level.floor.items()) - set(self.level.monster_bricks)
+        hero_pos = random.choice(list(free_floor))
+
+        if hero_state is None:
+            hero_state = self.create_new_hero()
+
+        hero_state.cellx = cfg.TILE_SIZE * hero_pos[0][0]
+        hero_state.celly = cfg.TILE_SIZE * hero_pos[0][1]
+        hero_state.alive = True
+        hero_state.time_to_hide = None
+
+        character = Hero(self.game, hero_state, self.get_hero_image())
         
         self.state.keydown_handlers[pg.K_DOWN].append(character.handle_keydown)
         self.state.keydown_handlers[pg.K_RIGHT].append(character.handle_keydown)
@@ -99,6 +121,9 @@ class RoundObject(CustomObject):
         self.state.keyup_handlers[pg.K_RIGHT].append(character.handle_keyup)
         self.state.keyup_handlers[pg.K_LEFT].append(character.handle_keyup)
         self.state.keyup_handlers[pg.K_UP].append(character.handle_keyup)
+
+        self.state.bomb_handlers[BombAction.START_EXPLOSION].append(self.start_bomb_explosion)
+        self.state.bomb_handlers[BombAction.END_EXPLOSION].append(self.end_bomb_explosion)
 
         self.objects.append(character)
         self.hero = character
@@ -128,11 +153,73 @@ class RoundObject(CustomObject):
         self.objects.append(bomb)
 
         self.hero.state.bombs_count -= 1
-    
+
+    def start_bomb_explosion(self, eventdata):
+        bomb = eventdata.bomb
+        bomb.state.explosion = True
+        cells = self.level.get_neighbour_free_tiles(bomb.state.cellx, bomb.state.celly)
+        bomb.state.explosion_end_timeout = pg.time.get_ticks() + cfg.EXPLOSION_DURATION
+        bomb.make_explosion_rects(cells)
+        self.level.remove_obstacles(cells)
+
+    def end_bomb_explosion(self, eventdata):
+        bomb = eventdata.bomb
+        bomb.state.explosion = False
+        self.remove_bomb(bomb)
+
     def remove_bomb(self, bomb):
         self.objects.remove(bomb)
         self.level.bombs.remove(bomb)
         self.hero.state.bombs_count += 1
+
+    def handle_exit_show(self, eventdata):
+        pass
+
+    def handle_exit_active(self, eventdata):
+        self.hero.state.can_exit = True
+
+    def handle_exit_open(self, eventdata):
+        new_round = int(self.hero.state.round) + 1
+        new_level = int(self.hero.state.level)
+        if new_round > 8:
+            new_round = 1
+            new_level = new_level + 1
+
+        self.hero.state.round = f'{new_round:02}'
+        self.hero.state.level = f'{new_level:02}'
+        self.hero.state.time_to_hide = 0
+        self.hero.state.command.key = None
+        self.hero.state.rect = None
+        self.hero.state.can_exit = False
+        self.hero.state.direction = Direction.NONE
+        self.hero.state.old_direction = Direction.NONE
+        # self.hero.state.password = StateManager().save_state_enc(json.dumps(self.hero.state.to_dict()))
+        self.game.statemodel.play_next_round(data=self.hero.state)
+
+    def handle_exit_replay(self, eventdata):
+        lives = self.hero.state.lives
+        if lives > 0:
+            self.hero.state.lives = lives - 1
+            self.game.statemodel.play_next_round(data=self.hero.state)            
+        else:
+            retries = self.hero.state.retries
+            self.hero.state.time_to_hide = 0
+            self.hero.state.command.key = None
+            self.hero.state.rect = None
+            self.hero.state.can_exit = False
+            self.hero.state.direction = Direction.NONE
+            self.hero.state.old_direction = Direction.NONE
+            if retries > 0:
+                self.hero.state.lives = 3
+                self.hero.state.retries = retries - 1
+                self.game.statemodel.play_gameover(data=self.hero.state)
+            else:
+                self.hero.state.round = '01'
+                self.hero.state.level = '01'
+                self.hero.state.lives = -1
+                self.hero.state.retries = -1
+                self.game.statemodel.play_gameover(data=self.hero.state)
+                
 
     def draw(self, surface:Surface):
         if not self.paused:
@@ -177,6 +264,10 @@ class RoundObject(CustomObject):
         for m in monsters_to_remove:
             self.level.monsters.remove(m)
 
+        if len(self.level.monsters) <= 0:
+            pg.event.post(Event(cfg.E_EXIT, action=ExitAction.ACTIVE))
+
+
     def process_collisions(self):
         monster_rects = self.level.monsters.get_rects()
         if monster_rects:
@@ -192,7 +283,7 @@ class RoundObject(CustomObject):
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
         if key == pg.K_ESCAPE:
-            self.state.statemodel.play_menu()
+            self.state.statemodel.play_menu(data=None)
         elif key == pg.K_p:
             self.paused = not self.paused
         elif key == pg.K_SPACE:

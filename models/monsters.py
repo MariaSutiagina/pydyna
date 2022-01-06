@@ -45,6 +45,9 @@ class Monsters(CustomObject):
     def __setitem__(self, key, value):
         self.monsters[key] = value
 
+    def __len__(self):
+        return len(self.monsters)
+
     def append(self, value):
         self.monsters.append(value)
 

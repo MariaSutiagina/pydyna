@@ -10,6 +10,7 @@ from models.statemodel.quitgame import QuitGame
 # модель состояний для переходов между игровыми экранами
 class StateModel:
     def __init__(self, game):
+        self.data = None
         self.init_states(game)
         self.init_transitions()
     
@@ -40,21 +41,21 @@ class StateModel:
             # из экрана LevelTitleScreen попадаем в экран заставки раунда RoundTitleScreen сгенерировав событие level_round
             {'trigger': 'level_round', 'source': 'LevelTitleScreen', 'dest': 'RoundTitleScreen'},
             # из экрана RoundTitleScreen попадаем в экран игрового раунда RoundScreen сгенерировав событие round_ play
-            {'trigger': 'round_play', 'source': 'RoundTitleScreen', 'dest': 'RoundScreen'},
+            {'trigger': 'round_play', 'source': 'RoundTitleScreen', 'dest': 'RoundScreen', 'before': 'set_environment'},
             # из экрана RoundScreen попадаем в экран меню MenuScreen сгенерировав событие play_exit
-            {'trigger': 'play_exit', 'source': 'RoundScreen', 'dest': 'MenuScreen'},
+            {'trigger': 'play_exit', 'source': 'RoundScreen', 'dest': 'MenuScreen', 'before': 'set_environment'},
             # из экрана RoundScreen попадаем в экран заставки нового раунда RoundTitleScreen сгенерировав событие play_next_round
-            {'trigger': 'play_next_round', 'source': 'RoundScreen', 'dest': 'RoundTitleScreen'},
+            {'trigger': 'play_next_round', 'source': 'RoundScreen', 'dest': 'RoundTitleScreen', 'before': 'set_environment'},
             # из экрана RoundScreen попадаем в экран заставки нового уровня RoundTitleScreen сгенерировав событие play_next_level
-            {'trigger': 'play_next_level', 'source': 'RoundScreen', 'dest': 'LevelTitleScreen'},
+            {'trigger': 'play_next_level', 'source': 'RoundScreen', 'dest': 'LevelTitleScreen', 'before': 'set_environment'},
             # из экрана RoundScreen попадаем в экран меню окончания игры GameOverScreen сгенерировав событие play_gameover
-            {'trigger': 'play_gameover', 'source': 'RoundScreen', 'dest': 'GameOverScreen'},
+            {'trigger': 'play_gameover', 'source': 'RoundScreen', 'dest': 'GameOverScreen', 'before': 'set_environment'},
             # из экрана RoundScreen попадаем в экран меню игры MenuScreen сгенерировав событие play_menu
             {'trigger': 'play_menu', 'source': 'RoundScreen', 'dest': 'MenuScreen'},
             # из экрана GameOverScreen попадаем в экран заставки раунда RoundTitleScreen для продолжения игры сгенерировав событие gameover_continue
-            {'trigger': 'gameover_continue', 'source': 'GameOverScreen', 'dest': 'RoundTitleScreen'},
+            {'trigger': 'gameover_continue', 'source': 'GameOverScreen', 'dest': 'RoundTitleScreen', 'before': 'set_environment'},
             # из экрана GameOverScreen попадаем в экран меню MenuScreen сгенерировав событие gameover_end
-            {'trigger': 'gameover_end', 'source': 'GameOverScreen', 'dest': 'MenuScreen'},
+            {'trigger': 'gameover_end', 'source': 'GameOverScreen', 'dest': 'MenuScreen', 'before': 'set_environment'},
             # из экрана PasswordScreen попадаем в экран заставки раунда RoundTitleScreen сгенерировав событие password_play
             {'trigger': 'password_play', 'source': 'PasswordScreen', 'dest': 'RoundTitleScreen'},
             # из экрана PasswordScreen попадаем в экран заставки  меню MenuScreen сгенерировав событие password_menu
@@ -68,6 +69,12 @@ class StateModel:
 
     def on_exit(self, eventdata):
         eventdata.state.handle_on_exit(eventdata)
+
+    def set_environment(self, eventdata):
+        if 'data' in eventdata.kwargs:
+            self.data = eventdata.kwargs['data']
+        else:
+            self.data = None    
 
     @property
     def states(self):

@@ -1,10 +1,11 @@
 from typing import Sequence, List, Tuple
 import pygame as pg
+from pygame.event import Event
 from pygame.rect import Rect
 from pygame.surface import Surface
 from models.customcharacter import CustomCharacter
-from utils.constants import CELL_H, CELL_W, EXPLOSION_DURATION, FADE_TIMEOUT, TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
-from utils.types import Direction
+from utils.constants import CELL_H, CELL_W, E_BOMB, EXPLOSION_DURATION, TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
+from utils.types import BombAction, Direction
 from utils.utils import cell_pos_to_pixel, position_in_tile, position_collided
 
 class BombRect(Rect):
@@ -101,23 +102,13 @@ class Bomb(CustomCharacter):
             rects.append(rect)
         self.state.rects = rects
 
-    def destroy_walls(self, cells):
-        self.get_level().remove_obstacles(cells)        
-
     def update_state(self):
-        if self.state.explosion == True:
+        if self.state.explosion:
             if pg.time.get_ticks() >= self.state.explosion_end_timeout:
-                self.state.explosion = False
-                round = self.get_round()
-                if round:
-                    round.remove_bomb(self)
+                pg.event.post(Event(E_BOMB, action=BombAction.END_EXPLOSION, bomb=self))
         else:
             if pg.time.get_ticks() >= self.state.explosion_timeout:
-                self.state.explosion = True
-                self.state.explosion_end_timeout = pg.time.get_ticks() + EXPLOSION_DURATION
-                cells = self.get_level().get_neighbour_free_tiles(self.state.cellx, self.state.celly)
-                self.make_explosion_rects(cells)
-                self.destroy_walls(cells)
+                pg.event.post(Event(E_BOMB, action=BombAction.START_EXPLOSION, bomb=self))
 
 
             

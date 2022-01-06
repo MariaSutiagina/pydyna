@@ -20,8 +20,8 @@ class LevelTitleObject(CustomObject):
         surface.blit(self.get_image(), (self.left, self.top))
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
-        self.state.statemodel.level_round()
+        self.state.statemodel.level_round(self.state.statemodel.data)
 
     def mouse_handler(self, type, pos):
         if type == pg.MOUSEBUTTONDOWN:
-            self.state.statemodel.level_round()
+            self.state.statemodel.level_round(self.state.statemodel.data)

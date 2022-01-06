@@ -2,6 +2,7 @@ import sys
 import pygame
 
 from models.level import Level
+from utils.constants import E_BOMB, E_EXIT
 
 # реализует механизм основного цикла обработки событий игры,
 #
@@ -44,6 +45,12 @@ class Game:
                 # передаем событие мыши в обработчик на текущем экране игры
                 for handler in self.get_state().mouse_handlers:
                     handler(event.type, event.pos)
+            elif event.type == E_BOMB:
+                for handler in self.get_state().bomb_handlers[event.action]:
+                    handler(event)
+            elif event.type == E_EXIT:
+                for handler in self.get_state().exit_handlers[event.action]:
+                    handler(event)
         if self.get_state().dispatcher:
             self.get_state().dispatcher(events)
 

@@ -20,8 +20,8 @@ class RoundTitleObject(CustomObject):
         surface.blit(self.get_image(), (self.left, self.top))
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
-        self.state.statemodel.round_play()
+        self.state.statemodel.round_play(data=self.state.statemodel.data)
 
     def mouse_handler(self, type, pos):
         if type == pg.MOUSEBUTTONDOWN:
-            self.state.statemodel.round_play()
+            self.state.statemodel.round_play(data=self.state.statemodel.data)

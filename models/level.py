@@ -1,8 +1,13 @@
+import pygame as pg
+from pygame.event import Event
+
 from models.bombs import Bombs
 from models.monsters import Monsters
-from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, DB_FILENAME, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE
+from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, DB_FILENAME, E_EXIT, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE
 from utils.environment import Environment
 import random
+
+from utils.types import ExitAction
 
 class Level:
     def __init__(self, game, level:int, round:int):
@@ -127,6 +132,7 @@ class Level:
                     del self.bricks[c]
                     if c == self.exit[0]:
                         self.floor[c] = EXIT_TILE_TYPE
+                        pg.event.post(Event(E_EXIT, action=ExitAction.SHOW))
                     else:
                         self.floor[c] = 0
             

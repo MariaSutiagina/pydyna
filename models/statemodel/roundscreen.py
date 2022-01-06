@@ -3,9 +3,11 @@ from models.statemodel.gamestate import GameState
 
 from models.roundobject import RoundObject
 from utils.characterstate import CharacterState
+from utils.types import ExitAction
 
 class RoundScreen(GameState):
     def __init__(self, game, model):
+        self.data = None
         super().__init__(game, model, 'RoundScreen')
 
     def handle_on_enter(self, eventdata):
@@ -24,4 +26,9 @@ class RoundScreen(GameState):
         self.keydown_handlers[pg.K_p].append(self.roundobject.handle_keydown)
         self.keydown_handlers[pg.K_SPACE].append(self.roundobject.handle_keydown)
         self.keydown_handlers[pg.K_RETURN].append(self.roundobject.handle_keydown)
+        self.exit_handlers[ExitAction.SHOW].append(self.roundobject.handle_exit_show)
+        self.exit_handlers[ExitAction.ACTIVE].append(self.roundobject.handle_exit_active)
+        self.exit_handlers[ExitAction.OPEN].append(self.roundobject.handle_exit_open)
+        self.exit_handlers[ExitAction.REPLAY].append(self.roundobject.handle_exit_replay)
+
 

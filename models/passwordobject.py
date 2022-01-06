@@ -1,14 +1,15 @@
 from typing import Sequence, List
 import pygame as pg
+import json
 
 import pygame_menu as pgm
-from pygame_menu.widgets.widget.menubar import MENUBAR_STYLE_SIMPLE, MENUBAR_STYLE_NONE
-from pygame_menu.locals import CURSOR_HAND, ALIGN_CENTER, ALIGN_LEFT
-from pygame_vkeyboard import VKeyboardLayout, VKeyboard
+from pygame_menu.locals import ALIGN_CENTER, ALIGN_LEFT
 
-from pygame import Rect, Surface
+from pygame import Surface
 from models.customobject import CustomObject
+from utils.characterstate import CharacterState
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, KEYBOARD
+from utils.statemanager import StateManager
 
 class PasswordObject(CustomObject):
     def __init__(self, state):
@@ -38,6 +39,8 @@ class PasswordObject(CustomObject):
                             self.to_menu()
 
     def on_password_return(self, value):
+        json_data = StateManager().load_state(value.upper())
+        self.state.statemodel.data = CharacterState(json.loads(json_data))
         self.to_leveltitle()
 
     def to_leveltitle(self):

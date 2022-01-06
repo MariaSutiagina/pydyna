@@ -1,10 +1,12 @@
 addict==2.4.0
+cffi==1.15.0
 click==8.0.3
 click-default-group==1.2.2
+cryptography==36.0.1
+pycparser==2.21
 pydantic==1.9.0
 pygame==2.1.1
 pygame-menu==4.2.0
-pygame-vkeyboard==2.0.9
 pyperclip==1.8.2
 python-dateutil==2.8.2
 six==1.16.0
