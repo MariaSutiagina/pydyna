@@ -12,7 +12,7 @@ class TreasureFactory(metaclass=MetaSingleton):
             6: {'title': 'remote', 'remote': 1, 'timeout': TREASURE_TIMEOUT},
             7: {'title': 'killer', 'killer': 1, 'timeout': TREASURE_TIMEOUT},
             8: {'title': 'can-exit', 'can-exit': 1},
-            2: {'title': 'decspeed', 'decspeed': 1},
+            9: {'title': 'decspeed', 'decspeed': 1},
         }
 
     def create_treasure_state(self, treasuretype):

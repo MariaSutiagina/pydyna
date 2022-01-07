@@ -165,7 +165,7 @@ class RoundObject(CustomObject):
     def start_bomb_explosion(self, eventdata):
         bomb = eventdata.bomb
         bomb.state.explosion = True
-        cells = self.level.get_neighbour_free_tiles(bomb.state.cellx, bomb.state.celly)
+        cells = self.level.get_neighbour_free_tiles(bomb.state.cellx, bomb.state.celly, bomb.state.explosion_size)
         bomb.state.explosion_end_timeout = pg.time.get_ticks() + cfg.EXPLOSION_DURATION
         bomb.make_explosion_rects(cells)
         self.level.remove_obstacles(cells)

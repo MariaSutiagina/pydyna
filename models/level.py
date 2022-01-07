@@ -110,22 +110,54 @@ class Level:
         return neighbours
 
 
-    def get_neighbour_free_tiles(self, cellx:int, celly:int):
+    def get_neighbour_free_tiles(self, cellx:int, celly:int, explosion_size:int=1):
         tilex = cellx // TILE_SIZE
         tiley = celly // TILE_SIZE
         neighbours = []
-        if tilex > 0:
-            if self.layout[tiley][tilex - 1] < BRICK_SOLID_TYPE:
-                neighbours.append((tilex - 1, tiley))
-        if tilex < FIELD_TILES_W - 1:
-            if self.layout[tiley][tilex + 1] < BRICK_SOLID_TYPE:
-                neighbours.append((tilex + 1, tiley))
-        if tiley > 0:
-            if self.layout[tiley - 1][tilex] < BRICK_SOLID_TYPE:
-                neighbours.append((tilex, tiley - 1))
-        if tiley < FIELD_TILES_H - 1:
-            if self.layout[tiley + 1][tilex] < BRICK_SOLID_TYPE:
-                neighbours.append((tilex, tiley + 1))
+        for p in range(1,explosion_size + 1):
+            if tilex - p >= 0:
+                tile_type = self.layout[tiley][tilex - p]
+                if tile_type < BRICK_SOLID_TYPE:
+                    neighbours.append((tilex - p, tiley))
+                    if tile_type > 0 and tile_type <= BRICK_HARDNESS_MAX:
+                        break
+                else:
+                    break
+            else:
+                break
+        for p in range(1,explosion_size + 1):
+            if tilex + p < FIELD_TILES_W:
+                tile_type = self.layout[tiley][tilex + p]
+                if tile_type < BRICK_SOLID_TYPE:
+                    neighbours.append((tilex + p, tiley))
+                    if tile_type > 0 and tile_type <= BRICK_HARDNESS_MAX:
+                        break
+                else:
+                    break
+            else:
+                break
+        for p in range(1, explosion_size + 1):
+            if tiley - p >= 0:
+                tile_type = self.layout[tiley - p][tilex]
+                if tile_type < BRICK_SOLID_TYPE:
+                    neighbours.append((tilex, tiley - p))
+                    if tile_type > 0 and tile_type <= BRICK_HARDNESS_MAX:
+                        break
+                else:
+                    break
+            else:
+                break
+        for p in range(1, explosion_size + 1):
+            if tiley + p < FIELD_TILES_H:
+                tile_type = self.layout[tiley + p][tilex]
+                if tile_type < BRICK_SOLID_TYPE:
+                    neighbours.append((tilex, tiley + p))
+                    if tile_type > 0 and tile_type <= BRICK_HARDNESS_MAX:
+                        break
+                else:
+                    break
+            else:
+                break
         return neighbours
          
     def remove_obstacles(self, cells):
