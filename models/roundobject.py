@@ -15,7 +15,7 @@ from models.field import Field
 from utils.characterstate import CharacterState
 
 import utils.constants as cfg
-from utils.types import BombAction, Direction, ExitAction
+from utils.types import BombAction, Direction, ExitAction, TreasureAction
 from utils.utils import collision_rect
 
 
@@ -32,8 +32,8 @@ class RoundObject(CustomObject):
 
     def create_objects(self):
         self.objects = []
-        if self.state.statemodel.data:
-            self.state.statemodel.data.round = 8
+        # if self.state.statemodel.data:
+        #     self.state.statemodel.data.round = 8
         self.create_level(self.state.statemodel.data)
         self.create_wall()
         self.create_field()
@@ -92,10 +92,16 @@ class RoundObject(CustomObject):
                'is_hero': True,
                'is_bomb': False,
                'bombs_capacity': 3,
+               'bombs_strength': 1,
                'can_exit': False,
+               'can_fly': False,
+               'can_remote': False,
+               'can_use_exit': False,
+               'is_killer': False,
                'speed': 1,
+               'treasure_timeout': None,
                'direction': Direction.NONE,
-               'old_direction': Direction.NONE
+               'old_direction': Direction.NONE,
                }
         return CharacterState(state)
 
@@ -143,7 +149,7 @@ class RoundObject(CustomObject):
                'is_hero': False,
                'is_bomb': True,
                'explosion_timeout': pg.time.get_ticks() + cfg.EXPLOSION_TIMEOUT,
-               'explosion_size': 1,
+               'explosion_size': self.hero.state.bombs_strength,
                'explosion': False,
                'speed': 0,
                'direction': Direction.NONE,
@@ -196,6 +202,11 @@ class RoundObject(CustomObject):
         self.hero.state.can_exit = False
         self.hero.state.direction = Direction.NONE
         self.hero.state.old_direction = Direction.NONE
+        self.hero.state.can_fly = False
+        self.hero.state.can_remote = False
+        self.hero.state.is_killer = False
+        self.hero.state.can_use_exit = False
+        self.hero.state.treasure_timeout = None
         # self.hero.state.password = StateManager().save_state_enc(json.dumps(self.hero.state.to_dict()))
         if new_level > old_level:
             self.game.statemodel.play_next_level(data=self.hero.state)
@@ -215,6 +226,11 @@ class RoundObject(CustomObject):
             self.hero.state.can_exit = False
             self.hero.state.direction = Direction.NONE
             self.hero.state.old_direction = Direction.NONE
+            self.hero.state.bombs_strength = 1
+            self.hero.state.bombs_capacity = 3
+            self.hero.state.speed = 1
+
+            self.hero.state.treasure_timeout = None
             if retries > 0:
                 self.hero.state.lifes = 3
                 self.hero.state.retries = retries - 1
@@ -237,6 +253,24 @@ class RoundObject(CustomObject):
                 state.cellx = monster.state.cellx
                 state.celly = monster.state.celly
                 self.level.monsters.append(Monster(self.game, state))
+
+    def handle_show_treasure(self, eventdata):
+        pass
+    
+    def handle_open_treasure(self, eventdata):
+        self.hero.apply_treasure(self.level.treasure[1])
+        pg.event.post(Event(cfg.E_TREASURE, action=TreasureAction.HIDE))
+    
+    def handle_hide_treasure(self, eventdata):
+        self.level.remove_treasure()
+
+    def handle_inactive_treasure(self, eventdata):
+        self.hero.state.can_fly = False
+        self.hero.state.can_remote = False
+        self.hero.state.is_killer = False
+        self.hero.state.can_use_exit = False
+
+
     
     def draw(self, surface:Surface):
         if not self.paused:
@@ -274,7 +308,7 @@ class RoundObject(CustomObject):
                 for c in collisions:
                     if rects[c].bomb.state.explosion and \
                            (r.character.state.blowed_by is None or r.character.state.blowed_by != rects[c].bomb):
-                        if r.character.state.lifes > 0:
+                        if r.character.state.lifes > 1:
                             r.character.state.lifes -= 1
                             r.character.state.blowed_by = rects[c].bomb
                         else:
@@ -282,7 +316,7 @@ class RoundObject(CustomObject):
             else:     
                 if collisions >= 0 and rects[collisions].bomb.state.explosion and \
                            (r.character.state.blowed_by is None or r.character.state.blowed_by != rects[collisions].bomb):
-                    if r.character.state.lifes > 0:
+                    if r.character.state.lifes > 1:
                         r.character.state.lifes -= 1
                         r.character.state.blowed_by = rects[collisions].bomb
                     else:

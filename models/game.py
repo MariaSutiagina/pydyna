@@ -2,7 +2,7 @@ import sys
 import pygame
 
 from models.level import Level
-from utils.constants import E_BOMB, E_EXIT, E_MONSTER
+from utils.constants import E_BOMB, E_EXIT, E_MONSTER, E_TREASURE
 
 # реализует механизм основного цикла обработки событий игры,
 #
@@ -53,6 +53,9 @@ class Game:
                     handler(event)
             elif event.type == E_MONSTER:
                 for handler in self.get_state().monster_handlers[event.action]:
+                    handler(event)
+            elif event.type == E_TREASURE:
+                for handler in self.get_state().treasure_handlers[event.action]:
                     handler(event)
         if self.get_state().dispatcher:
             self.get_state().dispatcher(events)

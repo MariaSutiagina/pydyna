@@ -1,5 +1,4 @@
 import random
-from models.monster import Monster
 from utils.characterstate import CharacterState
 from utils.singleton import MetaSingleton
 from utils.types import Direction

@@ -37,3 +37,8 @@ class ExitAction(int, Enum):
 class MonsterAction(int, Enum):
     CREATE_EXTRA = 1
 
+class TreasureAction(int, Enum):
+    SHOW = 1
+    OPEN = 2
+    HIDE = 3
+    INACTIVE = 4

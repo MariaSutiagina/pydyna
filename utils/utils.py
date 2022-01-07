@@ -3,7 +3,7 @@ from typing import Tuple, List
 from pygame import Rect
 
 from utils.types import Direction, Side, Corner
-from utils.constants import DX, DY, EXIT_TILE_TYPE, TILE_SIZE, WALL_W, FIELD_HEIGHT_INNER, FIELD_WIDTH_INNER, FIELD_TILES_H, FIELD_TILES_W
+from utils.constants import DX, DY, EXIT_TILE_TYPE, TILE_SIZE, TREASURE_TILE_TYPE, TREASURE_TYPES_COUNT, WALL_W, FIELD_HEIGHT_INNER, FIELD_WIDTH_INNER, FIELD_TILES_H, FIELD_TILES_W
 
 def make_step(speed:int, direction:Direction) -> Tuple:
     if direction == Direction.LEFT:
@@ -204,6 +204,16 @@ def exit_position_collided(position:Tuple[int], level) -> Tuple[int]:
     exit_tile = level.exit
     collided = get_collided_tiles(posx, posy, [exit_tile[0]])
     return  len(collided) > 0 and level.floor[exit_tile[0]] == EXIT_TILE_TYPE
+
+    return False
+
+def treasure_position_collided(position:Tuple[int], level) -> Tuple[int]:
+    posx  = round(position[0] / TILE_SIZE) * TILE_SIZE
+    posy = round(position[1] / TILE_SIZE) * TILE_SIZE
+    # if is_position_in_tile(posx, posy):
+    treasure_tile = level.treasure[0]
+    collided = get_collided_tiles(posx, posy, [treasure_tile])
+    return  len(collided) > 0 and level.floor[treasure_tile] >= TREASURE_TILE_TYPE and level.floor[treasure_tile] < (TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT)
 
     return False
 

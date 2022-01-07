@@ -3,11 +3,11 @@ from pygame.event import Event
 
 from models.bombs import Bombs
 from models.monsters import Monsters
-from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, DB_FILENAME, E_EXIT, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE
+from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, E_EXIT, E_TREASURE, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE, TREASURE_TILE_TYPE, TREASURE_TYPES_COUNT
 from utils.environment import Environment
 import random
 
-from utils.types import ExitAction
+from utils.types import ExitAction, TreasureAction
 
 class Level:
     def __init__(self, game, level:int, round:int):
@@ -38,7 +38,7 @@ class Level:
         self.floor = dict(filter(lambda x: x[1] == 0, rowpos.items()))
         if self.bricks and len(self.bricks.items()) > 0:
             treasure_brick = random.choice(list(self.bricks.items()))
-            treasure_type = random.randint(1,10)
+            treasure_type = random.randint(TREASURE_TILE_TYPE, TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT - 1)
             self.treasure = (treasure_brick[0], treasure_type)
             del self.bricks[treasure_brick[0]]
 
@@ -48,8 +48,6 @@ class Level:
             self.treasure = None
             self.exit = random.choice(list(self.floor.items()))
             self.floor[self.exit[0]] = EXIT_TILE_TYPE
-
-
 
         if self.treasure:
             self.bricks[self.treasure[0]] = treasure_type
@@ -133,7 +131,7 @@ class Level:
     def remove_obstacles(self, cells):
         for c in cells:
             v = self.layout[c[1]][c[0]]
-            if v > 0:
+            if v > 0 and v <= BRICK_HARDNESS_MAX:
                 v -= 1
                 self.layout[c[1]][c[0]] = v
                 if v == 0:
@@ -141,8 +139,16 @@ class Level:
                     if c == self.exit[0]:
                         self.floor[c] = EXIT_TILE_TYPE
                         pg.event.post(Event(E_EXIT, action=ExitAction.SHOW))
+                    elif c == self.treasure[0]:
+                        self.floor[c] = self.treasure[1]
+                        pg.event.post(Event(E_TREASURE, action=TreasureAction.SHOW, treasure=self.treasure))
                     else:
                         self.floor[c] = 0
+
+    def remove_treasure(self):
+        c = self.treasure[0]
+        self.floor[c] = 0
+        self.treasure = (c, -1)
             
 
             

@@ -25,6 +25,7 @@ class GameState(State):
         self.bomb_handlers = defaultdict(list)
         self.exit_handlers = defaultdict(list)
         self.monster_handlers = defaultdict(list)
+        self.treasure_handlers = defaultdict(list)
         
 
         
