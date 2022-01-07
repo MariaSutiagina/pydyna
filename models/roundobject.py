@@ -32,18 +32,18 @@ class RoundObject(CustomObject):
 
     def create_objects(self):
         self.objects = []
-        self.create_level()
+        self.create_level(self.state.statemodel.data)
         self.create_wall()
         self.create_field()
         self.create_characters()
         self.create_hero(self.state.statemodel.data)
 
-    def create_level(self):
+    def create_level(self, hero_state):
         level = '01'
         round = '01'
-        if self.state.statemodel.data:
-            level = self.state.statemodel.data.level
-            round = self.state.statemodel.data.round
+        if hero_state:
+            level = hero_state.level
+            round = hero_state.round
         self.level = Level(self.game, int(level), int(round))
 
     def create_wall(self):
@@ -180,7 +180,8 @@ class RoundObject(CustomObject):
 
     def handle_exit_open(self, eventdata):
         new_round = int(self.hero.state.round) + 1
-        new_level = int(self.hero.state.level)
+        old_level = new_level = int(self.hero.state.level)
+
         if new_round > 8:
             new_round = 1
             new_level = new_level + 1
@@ -194,7 +195,10 @@ class RoundObject(CustomObject):
         self.hero.state.direction = Direction.NONE
         self.hero.state.old_direction = Direction.NONE
         # self.hero.state.password = StateManager().save_state_enc(json.dumps(self.hero.state.to_dict()))
-        self.game.statemodel.play_next_round(data=self.hero.state)
+        if new_level > old_level:
+            self.game.statemodel.play_next_level(data=self.hero.state)
+        else:
+            self.game.statemodel.play_next_round(data=self.hero.state)
 
     def handle_exit_replay(self, eventdata):
         lives = self.hero.state.lives

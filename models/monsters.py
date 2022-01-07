@@ -2,6 +2,7 @@ import random
 from pygame.surface import Surface
 from models.customobject import CustomObject
 from models.monster import Monster
+from models.monsterfactory import MonsterFactory
 from utils.characterstate import CharacterState
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, TILE_SIZE
 from utils.utils import tile_pos_to_cell
@@ -16,18 +17,10 @@ class Monsters(CustomObject):
 
     def load(self, monsterdata):
         for md in monsterdata:
-            state = CharacterState()
-            state.monstertype = md['type']
+            state = MonsterFactory()[md['type']] 
             pos = md['pos']
             state.cellx = pos[0] * TILE_SIZE
             state.celly = pos[1] * TILE_SIZE
-            state.speed = 1
-            state.alive = True
-            state.is_monster = True
-            state.is_hero = False
-            state.is_bomb = False
-            state.direction = random.choice([Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN])
-            state.old_direction = state.direction
             self.monsters.append(Monster(self.game, state))
 
     def clear(self):

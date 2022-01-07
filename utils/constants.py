@@ -47,3 +47,4 @@ GAME_FONT_PATH = './resources/fonts/Elfboyclassic.ttf'
 #user events
 E_BOMB = USEREVENT + 1
 E_EXIT = USEREVENT + 2
+

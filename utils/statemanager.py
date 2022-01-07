@@ -12,7 +12,7 @@ class StateManager(metaclass=MetaSingleton):
         return ''.join(random.choices(list(string.ascii_uppercase), k=8))
 
     def save_state_enc(self, data:str):
-        db = Environment(DB_FILENAME).db
+        db = Environment().db
         password = self._gen_password()
         enc_data = password_encrypt(data.encode(), password)
         query = 'replace into hero(password,data) values(?, ?)'        
@@ -22,14 +22,14 @@ class StateManager(metaclass=MetaSingleton):
         return password
 
     def finalize_state(self, password:str):
-        db = Environment(DB_FILENAME).db
+        db = Environment().db
         query = f"update hero set password=NULL where password='{password}'"        
         cursor = db.execute(query)
         db.conn.commit()
 
 
     def load_state(self, password:str):
-        db = Environment(DB_FILENAME).db
+        db = Environment().db
         query = f"select data from hero where password='{password}'"
         cursor = db.query(query)
         for row in cursor:

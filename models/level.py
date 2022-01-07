@@ -35,15 +35,24 @@ class Level:
 
         self.bricks = dict(filter(lambda x: x[1] > 0 and x[1] <= BRICK_HARDNESS_MAX, rowpos.items()))
         self.solid = dict(filter(lambda x: x[1] == BRICK_SOLID_TYPE, rowpos.items()))
+        self.floor = dict(filter(lambda x: x[1] == 0, rowpos.items()))
+        if self.bricks and len(self.bricks.items()) > 0:
+            treasure_brick = random.choice(list(self.bricks.items()))
+            treasure_type = random.randint(1,10)
+            self.treasure = (treasure_brick[0], treasure_type)
+            del self.bricks[treasure_brick[0]]
 
-        treasure_brick = random.choice(list(self.bricks.items()))
-        treasure_type = random.randint(1,10)
-        if self.round == 8:
-            treasure_type = 10
-        self.treasure = (treasure_brick[0], treasure_type)
-        del self.bricks[treasure_brick[0]]
-        self.exit = random.choice(list(self.bricks.items()))
-        self.bricks[self.treasure[0]] = treasure_type
+            self.exit = random.choice(list(self.bricks.items()))
+        else:
+            treasure_brick = None
+            self.treasure = None
+            self.exit = random.choice(list(self.floor.items()))
+            self.floor[self.exit[0]] = EXIT_TILE_TYPE
+
+
+
+        if self.treasure:
+            self.bricks[self.treasure[0]] = treasure_type
 
     def extract_monsters(self, data:str):
         rowpos = {}
@@ -51,7 +60,6 @@ class Level:
             for ci, cell in enumerate(row):
                 rowpos[(ci, ri)] = cell
 
-        self.floor = dict(filter(lambda x: x[1] == 0, rowpos.items()))
         self.monster_bricks = []
         pairs = data.split(',')
         monsterdata = []
@@ -71,7 +79,7 @@ class Level:
         self.monsters = Monsters(self.game, monsterdata)
 
     def extract_data(self):
-        db = Environment(DB_FILENAME).db
+        db = Environment().db
         query = f"select data, monsters from levels where level='{self.level:02}' and round='{self.round:02}'"
         cursor = db.query(query)
         for row in cursor:

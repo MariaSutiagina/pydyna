@@ -40,8 +40,9 @@ class PasswordObject(CustomObject):
 
     def on_password_return(self, value):
         json_data = StateManager().load_state(value.upper())
-        self.state.statemodel.data = CharacterState(json.loads(json_data))
-        self.to_leveltitle()
+        if json_data:
+            self.state.statemodel.data = CharacterState(json.loads(json_data))
+            self.to_leveltitle()
 
     def to_leveltitle(self):
         self.menu.disable()

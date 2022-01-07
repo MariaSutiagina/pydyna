@@ -1,10 +1,10 @@
 from sqlite_utils import Database
+from utils.constants import DB_FILENAME
 from utils.singleton import MetaSingleton
 
 class Environment(metaclass=MetaSingleton):
-    def __init__(self, db_filename:str):
-        self.filename = db_filename
-        self.database = Database(db_filename, memory=False)
+    def __init__(self):
+        self.database = Database(DB_FILENAME, memory=False)
 
     @property
     def db(self):
