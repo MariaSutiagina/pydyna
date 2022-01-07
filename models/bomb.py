@@ -6,7 +6,7 @@ from pygame.surface import Surface
 from models.customcharacter import CustomCharacter
 from utils.constants import CELL_H, CELL_W, E_BOMB, EXPLOSION_DURATION, TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
 from utils.types import BombAction, Direction
-from utils.utils import cell_pos_to_pixel, position_in_tile, position_collided
+from utils.utils import cell_pos_to_pixel
 
 class BombRect(Rect):
     def __init__(self, bomb, left:float, top:float, width:float, height:float):

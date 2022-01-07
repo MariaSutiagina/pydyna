@@ -32,6 +32,8 @@ class RoundObject(CustomObject):
 
     def create_objects(self):
         self.objects = []
+        if self.state.statemodel.data:
+            self.state.statemodel.data.round = 8
         self.create_level(self.state.statemodel.data)
         self.create_wall()
         self.create_field()
@@ -254,16 +256,26 @@ class RoundObject(CustomObject):
 
     def process_bomb_collisions(self, monster_rects):
         rects = self.level.bombs.get_rects()
-        monsters_to_remove = []
+        monsters_to_remove = set() 
         for i, r in enumerate(monster_rects):
             collisions = r.collidelist(rects)
             if isinstance(collisions, list) and len(collisions) > 0:
                 for c in collisions:
-                    if rects[c].bomb.state.explosion:
-                        monsters_to_remove.append(self.level.monsters[i])
+                    if rects[c].bomb.state.explosion and \
+                           (r.character.state.blowed_by is None or r.character.state.blowed_by != rects[c].bomb):
+                        if r.character.state.lives > 0:
+                            r.character.state.lives -= 1
+                            r.character.state.blowed_by = rects[c].bomb
+                        else:
+                            monsters_to_remove.add(r.character)
             else:     
-                if collisions >= 0 and rects[collisions].bomb.state.explosion:
-                    monsters_to_remove.append(self.level.monsters[i])
+                if collisions >= 0 and rects[collisions].bomb.state.explosion and \
+                           (r.character.state.blowed_by is None or r.character.state.blowed_by != rects[collisions].bomb):
+                    if r.character.state.lives > 0:
+                        r.character.state.lives -= 1
+                        r.character.state.blowed_by = rects[collisions].bomb
+                    else:
+                        monsters_to_remove.add(r.character)
         
         for m in monsters_to_remove:
             self.level.monsters.remove(m)

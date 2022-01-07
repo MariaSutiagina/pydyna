@@ -1,10 +1,10 @@
 import pygame as pg
+from pygame.rect import Rect
 from pygame.surface import Surface
 from models.character import Character
 from utils.characterstate import CharacterState
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, TILE_HEIGHT_IN_PIXEL, TILE_WIDTH_IN_PIXEL
 from utils.utils import tile_pos_to_cell
-
 
 class Monster(Character):
     def __init__(self, game, state:CharacterState):

@@ -6,7 +6,7 @@ from models.customcharacter import CustomCharacter
 from utils.characterstate import CharacterState
 from utils.constants import E_EXIT, TILE_SIZE
 from utils.types import Direction, ExitAction
-from utils.utils import exit_position_collided, position_in_tile, position_collided
+from utils.utils import exit_position_collided, position_in_tile, tile_position_collided, wall_position_collided
 import json
 
 class HeroRect(pg.Rect):
@@ -54,7 +54,9 @@ class Hero(CustomCharacter):
             speed = self.compute_speed()
             old_position = (self.state.cellx, self.state.celly)
             position = self.compute_position(speed, self.state.direction)
-            limited_position = position_collided(old_position, position, self.game.get_state().roundobject.level)
+            new_position = position
+            new_position = tile_position_collided(old_position, position, self.game.get_state().roundobject.level)
+            limited_position = wall_position_collided(new_position, self.game.get_state().roundobject.level)
             if limited_position[0] != position[0] or limited_position[1] != position[1]:
                 position = limited_position
             

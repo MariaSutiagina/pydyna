@@ -51,6 +51,8 @@ class Monsters(CustomObject):
         rects = []
         for m in self.monsters:
             rects.append(m.state.rect)
+            for r in m.chain:
+                rects.append(r)
         return rects
 
     def update_state(self):

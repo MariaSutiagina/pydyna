@@ -154,7 +154,7 @@ def get_collided_tiles(cellx:int, celly:int, obstacles:List):
             collided.append((o, side))
     return collided
 
-def position_collided(old_position:Tuple[int], new_position:Tuple[int], level) -> Tuple[int]:
+def tile_position_collided(old_position:Tuple[int], new_position:Tuple[int], level) -> Tuple[int]:
     posx  = new_position[0]
     posy = new_position[1]
 
@@ -173,6 +173,12 @@ def position_collided(old_position:Tuple[int], new_position:Tuple[int], level) -
                 posy = (pos[1] - 1) * TILE_SIZE
             elif side == Side.UP:
                 posy = (pos[1] + 1) * TILE_SIZE
+    return (posx, posy)
+
+
+def wall_position_collided(new_position:Tuple[int], level) -> Tuple[int]:
+    posx  = new_position[0]
+    posy = new_position[1]
 
     if posx < 0:
         posx = 0
