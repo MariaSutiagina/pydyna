@@ -119,7 +119,7 @@ def position_in_tile(cellx:int, celly:int):
     elif is_position_in_tile(cellx, celly, 2):
         return (Direction.LEFT, Direction.RIGHT)
     else:
-        return Direction.NONE
+        return (Direction.NONE, )
 
 
 def collision_rect(rect1:Rect, rect2:Rect):

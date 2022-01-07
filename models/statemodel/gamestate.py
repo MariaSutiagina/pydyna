@@ -24,6 +24,7 @@ class GameState(State):
         self.dispatcher = None
         self.bomb_handlers = defaultdict(list)
         self.exit_handlers = defaultdict(list)
+        self.monster_handlers = defaultdict(list)
         
 
         

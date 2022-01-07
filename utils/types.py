@@ -29,8 +29,11 @@ class BombAction(int, Enum):
     END_EXPLOSION = 2
 
 class ExitAction(int, Enum):
-    SHOW = 1,
-    ACTIVE = 2,
+    SHOW = 1
+    ACTIVE = 2
     OPEN = 3
     REPLAY = 4
+
+class MonsterAction(int, Enum):
+    CREATE_EXTRA = 1
 

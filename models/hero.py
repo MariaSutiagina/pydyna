@@ -7,7 +7,6 @@ from utils.characterstate import CharacterState
 from utils.constants import E_EXIT, TILE_SIZE
 from utils.types import Direction, ExitAction
 from utils.utils import exit_position_collided, position_in_tile, tile_position_collided, wall_position_collided
-import json
 
 class HeroRect(pg.Rect):
     def __init__(self, hero, left:float, top:float, width:float, height:float):

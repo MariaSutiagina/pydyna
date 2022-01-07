@@ -3,7 +3,7 @@ from models.statemodel.gamestate import GameState
 
 from models.roundobject import RoundObject
 from utils.characterstate import CharacterState
-from utils.types import ExitAction
+from utils.types import ExitAction, MonsterAction
 
 class RoundScreen(GameState):
     def __init__(self, game, model):
@@ -30,5 +30,6 @@ class RoundScreen(GameState):
         self.exit_handlers[ExitAction.ACTIVE].append(self.roundobject.handle_exit_active)
         self.exit_handlers[ExitAction.OPEN].append(self.roundobject.handle_exit_open)
         self.exit_handlers[ExitAction.REPLAY].append(self.roundobject.handle_exit_replay)
+        self.monster_handlers[MonsterAction.CREATE_EXTRA].append(self.roundobject.handle_create_extra_monsters)
 
 

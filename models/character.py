@@ -2,13 +2,14 @@ import pygame as pg
 import random
 from typing import Tuple, overload
 from collections import deque
+from pygame.event import Event
 from pygame.rect import Rect
 
 from pygame.surface import Surface
 
 from models.customcharacter import CustomCharacter
-from utils.types import Direction
-from utils.constants import DIRECTION_CHANGE_FACTOR, TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
+from utils.types import Direction, MonsterAction
+from utils.constants import DIRECTION_CHANGE_FACTOR, E_MONSTER, TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
 from utils.utils import cell_pos_to_pixel, position_in_tile, tile_position_collided, wall_position_collided
 
 class CharacterRect(Rect):
@@ -54,6 +55,14 @@ class Character(CustomCharacter):
         else:
             return 0
 
+    def get_has_children(self):
+        caps = self.get_capabilities()
+        if  caps and 'has_children' in caps:
+            return caps['has_children']
+        else:
+            return 0
+    
+
     def compute_direction(self) -> Direction:
         save_direction = random.choice([* self.get_direction_change_factor()*[True], False],)
         direction = self.state.direction
@@ -70,6 +79,15 @@ class Character(CustomCharacter):
         else:
             self.chain.appendleft(CharacterRect(self, old_position[0], old_position[1], TILE_SIZE, TILE_SIZE))
  
+    def compute_and_update_children(self):
+        if self.get_has_children():
+            if self.state.children_make_timeout:
+                if pg.time.get_ticks() >= self.state.children_make_timeout:
+                    pg.event.post(Event(E_MONSTER, action=MonsterAction.CREATE_EXTRA, monster=self))
+                    self.state.children_make_timeout = pg.time.get_ticks() + self.get_capabilities()['pregnancy_duration'] * 1000
+            else:
+                self.state.children_make_timeout = pg.time.get_ticks() + self.get_capabilities()['pregnancy_duration'] * 1000
+
     def update_state(self):
         speed = self.compute_speed()
         old_position = (self.state.cellx, self.state.celly)
@@ -93,6 +111,8 @@ class Character(CustomCharacter):
 
         self.compute_and_update_state(position, speed, direction)
         self.compute_and_update_chain(old_position)
+        self.compute_and_update_children()
+
 
 
         return super().update_state()

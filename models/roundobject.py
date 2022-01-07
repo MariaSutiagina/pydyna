@@ -8,15 +8,15 @@ from models.bomb import Bomb, BombRect
 from models.customobject import CustomObject
 from models.hero import Hero
 from models.level import Level
+from models.monster import Monster
+from models.monsterfactory import MonsterFactory
 from models.wall import Wall
 from models.field import Field
-from models.monsters import Monsters
 from utils.characterstate import CharacterState
 
 import utils.constants as cfg
-from utils.statemanager import StateManager
 from utils.types import BombAction, Direction, ExitAction
-from utils.utils import collision_rect, exit_position_collided
+from utils.utils import collision_rect
 
 
 class RoundObject(CustomObject):
@@ -84,7 +84,7 @@ class RoundObject(CustomObject):
                'celly': 0,
                'alive': True,
                'gone': False,
-               'lives': 3,
+               'lifes': 3,
                'retries': 3,
                'round': '01',
                'level': '01', 
@@ -138,7 +138,7 @@ class RoundObject(CustomObject):
                'cellx': rect.left,
                'celly': rect.top,
                'rect': rect, 
-               'lives': 3,
+               'lifes': 3,
                'is_monster': False,
                'is_hero': False,
                'is_bomb': True,
@@ -203,9 +203,9 @@ class RoundObject(CustomObject):
             self.game.statemodel.play_next_round(data=self.hero.state)
 
     def handle_exit_replay(self, eventdata):
-        lives = self.hero.state.lives
-        if lives > 0:
-            self.hero.state.lives = lives - 1
+        lifes = self.hero.state.lifes
+        if lifes > 0:
+            self.hero.state.lifes = lifes - 1
             self.game.statemodel.play_next_round(data=self.hero.state)            
         else:
             retries = self.hero.state.retries
@@ -216,17 +216,28 @@ class RoundObject(CustomObject):
             self.hero.state.direction = Direction.NONE
             self.hero.state.old_direction = Direction.NONE
             if retries > 0:
-                self.hero.state.lives = 3
+                self.hero.state.lifes = 3
                 self.hero.state.retries = retries - 1
                 self.game.statemodel.play_gameover(data=self.hero.state)
             else:
                 self.hero.state.round = '01'
                 self.hero.state.level = '01'
-                self.hero.state.lives = -1
+                self.hero.state.lifes = -1
                 self.hero.state.retries = -1
                 self.game.statemodel.play_gameover(data=self.hero.state)
                 
-
+    def handle_create_extra_monsters(self, eventdata):
+        monster = eventdata.monster
+        children_count = monster.get_has_children()
+        if children_count > 0:
+            caps = monster.get_capabilities()
+            child_type = caps['children_type']
+            for c in range(children_count):
+                state = MonsterFactory()[child_type] 
+                state.cellx = monster.state.cellx
+                state.celly = monster.state.celly
+                self.level.monsters.append(Monster(self.game, state))
+    
     def draw(self, surface:Surface):
         if not self.paused:
             for o in self.objects:
@@ -263,16 +274,16 @@ class RoundObject(CustomObject):
                 for c in collisions:
                     if rects[c].bomb.state.explosion and \
                            (r.character.state.blowed_by is None or r.character.state.blowed_by != rects[c].bomb):
-                        if r.character.state.lives > 0:
-                            r.character.state.lives -= 1
+                        if r.character.state.lifes > 0:
+                            r.character.state.lifes -= 1
                             r.character.state.blowed_by = rects[c].bomb
                         else:
                             monsters_to_remove.add(r.character)
             else:     
                 if collisions >= 0 and rects[collisions].bomb.state.explosion and \
                            (r.character.state.blowed_by is None or r.character.state.blowed_by != rects[collisions].bomb):
-                    if r.character.state.lives > 0:
-                        r.character.state.lives -= 1
+                    if r.character.state.lifes > 0:
+                        r.character.state.lifes -= 1
                         r.character.state.blowed_by = rects[collisions].bomb
                     else:
                         monsters_to_remove.add(r.character)
