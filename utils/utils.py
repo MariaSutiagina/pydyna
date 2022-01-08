@@ -213,7 +213,7 @@ def treasure_position_collided(position:Tuple[int], level) -> Tuple[int]:
     # if is_position_in_tile(posx, posy):
     treasure_tile = level.treasure[0]
     collided = get_collided_tiles(posx, posy, [treasure_tile])
-    return  len(collided) > 0 and level.floor[treasure_tile] >= TREASURE_TILE_TYPE and level.floor[treasure_tile] < (TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT)
+    return  len(collided) > 0 and treasure_tile in level.floor and level.floor[treasure_tile] >= TREASURE_TILE_TYPE and level.floor[treasure_tile] < (TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT)
 
     return False
 

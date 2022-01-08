@@ -24,6 +24,9 @@ class Bombs(CustomObject):
     def __setitem__(self, key, value):
         self.bombs[key] = value
 
+    def __len__(self):
+        return len(self.bombs)
+
     def append(self, value):
         self.bombs.append(value)
 

@@ -107,7 +107,7 @@ class Bomb(CustomCharacter):
             if pg.time.get_ticks() >= self.state.explosion_end_timeout:
                 pg.event.post(Event(E_BOMB, action=BombAction.END_EXPLOSION, bomb=self))
         else:
-            if pg.time.get_ticks() >= self.state.explosion_timeout:
+            if (not self.state.is_remote) and pg.time.get_ticks() >= self.state.explosion_timeout:
                 pg.event.post(Event(E_BOMB, action=BombAction.START_EXPLOSION, bomb=self))
 
 

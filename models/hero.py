@@ -73,7 +73,6 @@ class Hero(CustomCharacter):
                 self.state.treasure_timeout =  pg.time.get_ticks() + treasure_state['timeout'] * 1000
             elif 'can-exit' in treasure_state:
                 self.state.can_use_exit = True
-                self.state.treasure_timeout =  pg.time.get_ticks() + treasure_state['timeout'] * 1000
 
     def get_level(self):
         return self.game.get_state().roundobject.level

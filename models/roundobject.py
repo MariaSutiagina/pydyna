@@ -149,6 +149,7 @@ class RoundObject(CustomObject):
                 'is_monster': False,
                 'is_hero': False,
                 'is_bomb': True,
+                'is_remote': self.hero.state.can_remote,
                 'explosion_timeout': pg.time.get_ticks() + cfg.EXPLOSION_TIMEOUT,
                 'explosion_size': self.hero.state.bombs_strength,
                 'explosion': False,
@@ -156,7 +157,6 @@ class RoundObject(CustomObject):
                 'direction': Direction.NONE,
                 'old_direction': Direction.NONE
                 }
-
             bomb = Bomb(self.game, CharacterState(state), self.get_bomb_image())
             self.level.bombs.append(bomb)
             self.objects.append(bomb)
@@ -351,4 +351,11 @@ class RoundObject(CustomObject):
         elif key == pg.K_SPACE:
             if self.hero.state.bombs_count > 0:
                 self.set_bomb()
+        elif key == pg.K_RETURN:
+            if self.hero.state.can_remote and len(self.level.bombs) > 0:
+                for bomb in self.level.bombs:
+                    if not bomb.state.explosion:
+                        pg.event.post(Event(cfg.E_BOMB , action=BombAction.START_EXPLOSION, bomb=bomb))
+                        break
+
 

@@ -33,7 +33,7 @@ class Field(CustomObject):
             color = (0x88, 0x45, 0x35)
         elif (tx, ty) == self.level.exit[0] and self.level.floor[(tx, ty)] == EXIT_TILE_TYPE:
             color = (0x99, 0x11, 0x99)
-        elif (tx, ty) == self.level.treasure[0] and self.level.floor[(tx, ty)] >= TREASURE_TILE_TYPE and self.level.floor[(tx, ty)]<TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT:
+        elif self.level.treasure and (tx, ty) == self.level.treasure[0] and self.level.floor[(tx, ty)] >= TREASURE_TILE_TYPE and self.level.floor[(tx, ty)]<TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT:
             color = (0x0, 0x0, 0x0)
             treasure = True
         else:
