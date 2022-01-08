@@ -15,7 +15,7 @@ from models.field import Field
 from utils.characterstate import CharacterState
 
 import utils.constants as cfg
-from utils.types import BombAction, Direction, ExitAction, TreasureAction
+from utils.types import BombAction, Direction, ExitAction, MonsterAction, TreasureAction
 from utils.utils import collision_rect
 
 
@@ -88,6 +88,7 @@ class RoundObject(CustomScreenObject):
                'celly': 0,
                'alive': True,
                'gone': False,
+               'score': 0,
                'lifes': 3,
                'retries': 3,
                'round': '01',
@@ -121,6 +122,7 @@ class RoundObject(CustomScreenObject):
         hero_state.celly = cfg.TILE_SIZE * hero_pos[0][1]
         hero_state.alive = True
         hero_state.time_to_hide = None
+        hero_state.round_timeout = pg.time.get_ticks() + cfg.ROUND_TIMEOUT
 
         character = Hero(self.game, hero_state, self.get_hero_image())
         
@@ -212,10 +214,13 @@ class RoundObject(CustomScreenObject):
         self.hero.state.is_killer = False
         self.hero.state.can_use_exit = False
         self.hero.state.treasure_timeout = None
+        self.hero.state.round_timeout = None
         # self.hero.state.password = StateManager().save_state_enc(json.dumps(self.hero.state.to_dict()))
         if new_level > old_level:
+            self.hero.state.score += cfg.LEVEL_SCORE
             self.game.statemodel.play_next_level(data=self.hero.state)
         else:
+            self.hero.state.score += cfg.ROUND_SCORE
             self.game.statemodel.play_next_round(data=self.hero.state)
 
     def handle_exit_replay(self, eventdata):
@@ -234,8 +239,10 @@ class RoundObject(CustomScreenObject):
             self.hero.state.bombs_strength = 1
             self.hero.state.bombs_capacity = 3
             self.hero.state.speed = 1
+            self.hero.state.score = 0
 
             self.hero.state.treasure_timeout = None
+            self.hero.state.round_timeout = None
             if retries > 0:
                 self.hero.state.lifes = 3
                 self.hero.state.retries = retries - 1
@@ -249,14 +256,22 @@ class RoundObject(CustomScreenObject):
                 
     def handle_create_extra_monsters(self, eventdata):
         monster = eventdata.monster
-        children_count = monster.get_has_children()
-        if children_count > 0:
-            caps = monster.get_capabilities()
-            child_type = caps['children_type']
-            for c in range(children_count):
-                state = MonsterFactory()[child_type] 
-                state.cellx = monster.state.cellx
-                state.celly = monster.state.celly
+        if monster:
+            children_count = monster.get_has_children()
+            if children_count > 0:
+                caps = monster.get_capabilities()
+                child_type = caps['children_type']
+                for c in range(children_count):
+                    state = MonsterFactory()[child_type] 
+                    state.cellx = monster.state.cellx
+                    state.celly = monster.state.celly
+                    self.level.monsters.append(Monster(self.game, state))
+        else:
+            for c in range(cfg.RANDOM_CHILDREN_COUNT):
+                state = MonsterFactory()[-1] 
+                cell = random.choice(list(self.level.floor.items()))
+                state.cellx = cell[0][0] * cfg.TILE_SIZE
+                state.celly = cell[0][1] * cfg.TILE_SIZE
                 self.level.monsters.append(Monster(self.game, state))
 
     def handle_show_treasure(self, eventdata):
@@ -264,6 +279,7 @@ class RoundObject(CustomScreenObject):
     
     def handle_open_treasure(self, eventdata):
         self.hero.apply_treasure(self.level.treasure[1])
+        self.hero.state.score += cfg.TREASURE_SCORE
         pg.event.post(Event(cfg.E_TREASURE, action=TreasureAction.HIDE))
     
     def handle_hide_treasure(self, eventdata):
@@ -275,6 +291,8 @@ class RoundObject(CustomScreenObject):
         self.hero.state.is_killer = False
         self.hero.state.can_use_exit = False
 
+    def handle_remove_brick(self, eventdata):
+        self.hero.state.score += cfg.BRICK_SCORE
 
     
     def draw(self, surface:Surface):
@@ -320,6 +338,7 @@ class RoundObject(CustomScreenObject):
 
         for m in monsters_to_remove:
             self.level.monsters.remove(m)
+            self.hero.state.score += m.state.score
 
         if len(self.level.monsters) <= 0:
             pg.event.post(Event(cfg.E_EXIT, action=ExitAction.ACTIVE))
@@ -349,6 +368,7 @@ class RoundObject(CustomScreenObject):
         
         for m in monsters_to_remove:
             self.level.monsters.remove(m)
+            self.hero.state.score += m.state.score
 
         if len(self.level.monsters) <= 0:
             pg.event.post(Event(cfg.E_EXIT, action=ExitAction.ACTIVE))
@@ -359,6 +379,11 @@ class RoundObject(CustomScreenObject):
         if monster_rects:
             self.process_hero_collisions(monster_rects)
             self.process_bomb_collisions(monster_rects)
+
+        if pg.time.get_ticks() > self.hero.state.round_timeout:
+            pg.event.post(Event(cfg.E_MONSTER, action=MonsterAction.CREATE_EXTRA, monster=None))
+            self.hero.state.round_timeout = pg.time.get_ticks() + cfg.ROUND_TIMEOUT
+
 
     def update_state(self):
         super().update_state()
@@ -373,6 +398,10 @@ class RoundObject(CustomScreenObject):
             self.state.statemodel.play_menu(data=None)
         elif key == pg.K_p:
             self.paused = not self.paused
+            if self.paused:
+                self.pause_start_time = pg.time.get_ticks()
+            else:
+                self.hero.state.round_timeout += pg.time.get_ticks() - self.pause_start_time
         elif key == pg.K_SPACE:
             if self.hero.state.bombs_count > 0:
                 self.set_bomb()

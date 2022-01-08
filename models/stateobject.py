@@ -19,7 +19,7 @@ class StateObject(CustomObject):
     def init_geometry(self):
             self.x = 0
             self.y = 0
-            self.w = 300
+            self.w = 400
             self.h = CELL_H * WALL_W
 
     def draw(self, surface:Surface):
@@ -44,6 +44,9 @@ class StateObject(CustomObject):
             text.append('K')
         if self.state.can_exit or self.state.can_use_exit:
             text.append('X')
-
-        self.state_text = ', '.join(text)
+        
+        time = (self.state.round_timeout - pg.time.get_ticks()) // 1000
+        time_mins = time // 60
+        time_secs = time % 60
+        self.state_text = f'TIME: {time_mins:02}:{time_secs:02}  SCORE: {self.state.score:08}    ' + ', '.join(text)
     

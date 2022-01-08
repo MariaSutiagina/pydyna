@@ -43,6 +43,7 @@ class GameState(State):
         self.exit_handlers = defaultdict(list)
         self.monster_handlers = defaultdict(list)
         self.treasure_handlers = defaultdict(list)
+        self.brick_handlers = defaultdict(list)
         
 
     def init_resources(self):

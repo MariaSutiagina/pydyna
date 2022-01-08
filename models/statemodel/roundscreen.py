@@ -3,7 +3,7 @@ from models.statemodel.gamestate import GameState
 
 from models.roundobject import RoundObject
 from utils.characterstate import CharacterState
-from utils.types import ExitAction, MonsterAction, TreasureAction
+from utils.types import BrickAction, ExitAction, MonsterAction, TreasureAction
 
 class RoundScreen(GameState):
     def __init__(self, game, model):
@@ -28,5 +28,6 @@ class RoundScreen(GameState):
         self.treasure_handlers[TreasureAction.OPEN].append(self.roundobject.handle_open_treasure)
         self.treasure_handlers[TreasureAction.HIDE].append(self.roundobject.handle_hide_treasure)
         self.treasure_handlers[TreasureAction.INACTIVE].append(self.roundobject.handle_inactive_treasure)
+        self.brick_handlers[BrickAction.REMOVE].append(self.roundobject.handle_remove_brick)
 
 

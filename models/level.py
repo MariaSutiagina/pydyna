@@ -3,11 +3,11 @@ from pygame.event import Event
 
 from models.bombs import Bombs
 from models.monsters import Monsters
-from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, E_EXIT, E_TREASURE, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE, TREASURE_TILE_TYPE, TREASURE_TYPES_COUNT
+from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, E_BRICK, E_EXIT, E_TREASURE, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE, TREASURE_TILE_TYPE, TREASURE_TYPES_COUNT
 from utils.environment import Environment
 import random
 
-from utils.types import ExitAction, TreasureAction
+from utils.types import BrickAction, ExitAction, TreasureAction
 
 class Level:
     def __init__(self, game, level:int, round:int):
@@ -175,12 +175,15 @@ class Level:
                     del self.bricks[c]
                     if c == self.exit[0]:
                         self.floor[c] = EXIT_TILE_TYPE
+                        pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
                         pg.event.post(Event(E_EXIT, action=ExitAction.SHOW))
                     elif c == self.treasure[0]:
                         self.floor[c] = self.treasure[1]
+                        pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
                         pg.event.post(Event(E_TREASURE, action=TreasureAction.SHOW, treasure=self.treasure))
                     else:
                         self.floor[c] = 0
+                        pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
 
     def remove_treasure(self):
         c = self.treasure[0]

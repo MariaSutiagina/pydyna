@@ -42,3 +42,6 @@ class TreasureAction(int, Enum):
     OPEN = 2
     HIDE = 3
     INACTIVE = 4
+
+class BrickAction(int, Enum):
+    REMOVE = 1

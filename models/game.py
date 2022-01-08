@@ -1,7 +1,7 @@
 import sys
 import pygame
 
-from utils.constants import E_BOMB, E_EXIT, E_MONSTER, E_TREASURE
+from utils.constants import E_BOMB, E_BRICK, E_EXIT, E_MONSTER, E_TREASURE
 
 # реализует механизм основного цикла обработки событий игры,
 #
@@ -59,6 +59,10 @@ class Game:
             elif event.type == E_TREASURE:
                 #   передаем события от сокровищ в обработчики на текущем игровом экране
                 for handler in self.get_state().treasure_handlers[event.action]:
+                    handler(event)
+            elif event.type == E_BRICK:
+                #   передаем события от стен в обработчики на текущем игровом экране
+                for handler in self.get_state().brick_handlers[event.action]:
                     handler(event)
         if self.get_state().dispatcher:
             self.get_state().dispatcher(events)

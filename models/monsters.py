@@ -45,7 +45,8 @@ class Monsters(CustomObject):
         self.monsters.append(value)
 
     def remove(self, value):
-        self.monsters.remove(value)
+        if value in self.monsters:
+            self.monsters.remove(value)
 
     def get_rects(self):
         rects = []
