@@ -109,6 +109,11 @@ class Level:
                 neighbours.append((tilex, tiley + 1))
         return neighbours
 
+    def is_tile_free(self, cellx:int, celly:int):
+        tilex = cellx // TILE_SIZE
+        tiley = celly // TILE_SIZE
+        tile_type = self.layout[tiley][tilex]
+        return tile_type == 0 or tile_type == EXIT_TILE_TYPE or tile_type >= TREASURE_TILE_TYPE and tile_type <= TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT
 
     def get_neighbour_free_tiles(self, cellx:int, celly:int, explosion_size:int=1):
         tilex = cellx // TILE_SIZE

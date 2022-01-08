@@ -140,27 +140,28 @@ class RoundObject(CustomObject):
     def set_bomb(self):
         hr = self.hero.state.rect
         rect = BombRect(None, round(hr.left / cfg.TILE_SIZE) * cfg.TILE_SIZE, round(hr.top / cfg.TILE_SIZE) * cfg.TILE_SIZE, cfg.TILE_SIZE, cfg.TILE_SIZE)
-        state = {
-               'cellx': rect.left,
-               'celly': rect.top,
-               'rect': rect, 
-               'lifes': 3,
-               'is_monster': False,
-               'is_hero': False,
-               'is_bomb': True,
-               'explosion_timeout': pg.time.get_ticks() + cfg.EXPLOSION_TIMEOUT,
-               'explosion_size': self.hero.state.bombs_strength,
-               'explosion': False,
-               'speed': 0,
-               'direction': Direction.NONE,
-               'old_direction': Direction.NONE
-               }
+        if  self.level.is_tile_free(rect.left, rect.top):
+            state = {
+                'cellx': rect.left,
+                'celly': rect.top,
+                'rect': rect, 
+                'lifes': 3,
+                'is_monster': False,
+                'is_hero': False,
+                'is_bomb': True,
+                'explosion_timeout': pg.time.get_ticks() + cfg.EXPLOSION_TIMEOUT,
+                'explosion_size': self.hero.state.bombs_strength,
+                'explosion': False,
+                'speed': 0,
+                'direction': Direction.NONE,
+                'old_direction': Direction.NONE
+                }
 
-        bomb = Bomb(self.game, CharacterState(state), self.get_bomb_image())
-        self.level.bombs.append(bomb)
-        self.objects.append(bomb)
+            bomb = Bomb(self.game, CharacterState(state), self.get_bomb_image())
+            self.level.bombs.append(bomb)
+            self.objects.append(bomb)
 
-        self.hero.state.bombs_count -= 1
+            self.hero.state.bombs_count -= 1
 
     def start_bomb_explosion(self, eventdata):
         bomb = eventdata.bomb

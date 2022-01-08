@@ -71,7 +71,7 @@ class Hero(CustomCharacter):
             elif 'killer' in treasure_state:
                 self.state.is_killer = True
                 self.state.treasure_timeout =  pg.time.get_ticks() + treasure_state['timeout'] * 1000
-            elif 'can_exit' in treasure_state:
+            elif 'can-exit' in treasure_state:
                 self.state.can_use_exit = True
                 self.state.treasure_timeout =  pg.time.get_ticks() + treasure_state['timeout'] * 1000
 
@@ -84,7 +84,8 @@ class Hero(CustomCharacter):
             old_position = (self.state.cellx, self.state.celly)
             position = self.compute_position(speed, self.state.direction)
             new_position = position
-            new_position = tile_position_collided(old_position, position, self.get_level())
+            if not self.state.can_fly:
+                new_position = tile_position_collided(old_position, position, self.get_level())
             limited_position = wall_position_collided(new_position, self.get_level())
             if limited_position[0] != position[0] or limited_position[1] != position[1]:
                 position = limited_position
