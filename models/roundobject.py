@@ -288,17 +288,37 @@ class RoundObject(CustomObject):
     def process_hero_collisions(self, monster_rects):
         hero_rect = self.hero.state.rect
         collisions = hero_rect.collidelist(monster_rects)
+        monsters_to_remove = set() 
         if isinstance(collisions,list):
             for c in collisions:
                 if self.check_collision(hero_rect, monster_rects[c]):
-                    self.hero.state.alive = False
-                    self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
-                    break
+                    if not self.hero.state.is_killer:
+                        self.hero.state.alive = False
+                        self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+                        break
+                    else:
+                        if c.character.state.lifes > 1:
+                            c.character.state.lifes -= 1
+                        else:
+                            monsters_to_remove.add(c.character)
         else:
             if collisions >= 0 and self.check_collision(hero_rect, monster_rects[collisions]):
-                self.hero.state.alive = False
-                if not self.hero.state.time_to_hide:
-                    self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+                if not self.hero.state.is_killer:
+                    self.hero.state.alive = False
+                    if not self.hero.state.time_to_hide:
+                        self.hero.state.time_to_hide = pg.time.get_ticks() + cfg.FADE_TIMEOUT
+                else:
+                    c = monster_rects[collisions]
+                    if c.character.state.lifes > 1:
+                        c.character.state.lifes -= 1
+                    else:
+                        monsters_to_remove.add(c.character)
+
+        for m in monsters_to_remove:
+            self.level.monsters.remove(m)
+
+        if len(self.level.monsters) <= 0:
+            pg.event.post(Event(cfg.E_EXIT, action=ExitAction.ACTIVE))
 
     def process_bomb_collisions(self, monster_rects):
         rects = self.level.bombs.get_rects()
