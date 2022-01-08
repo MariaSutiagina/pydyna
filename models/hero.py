@@ -99,7 +99,7 @@ class Hero(CustomCharacter):
                 direction = self.state.old_direction
                 print(f'old direction = {direction}')        
             
-            if self.state.can_exit:
+            if self.state.can_exit or self.state.can_use_exit:
                 if exit_position_collided(position, self.get_level()):
                     pg.event.post(Event(E_EXIT, action=ExitAction.OPEN))
 

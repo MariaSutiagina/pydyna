@@ -1,5 +1,4 @@
 import random
-import json
 from typing import Sequence
 import pygame as pg
 from pygame import Rect, Surface
