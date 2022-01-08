@@ -1,7 +1,6 @@
 import sys
 import pygame
 
-from models.level import Level
 from utils.constants import E_BOMB, E_EXIT, E_MONSTER, E_TREASURE
 
 # реализует механизм основного цикла обработки событий игры,

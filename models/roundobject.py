@@ -9,6 +9,7 @@ from models.hero import Hero
 from models.level import Level
 from models.monster import Monster
 from models.monsterfactory import MonsterFactory
+from models.stateobject import StateObject
 from models.wall import Wall
 from models.field import Field
 from utils.characterstate import CharacterState
@@ -37,6 +38,11 @@ class RoundObject(CustomScreenObject):
         self.create_field()
         self.create_characters()
         self.create_hero(self.state.statemodel.data)
+        self.create_state_object()
+
+    def create_state_object(self):
+        self.stateobject = StateObject(self.game, self.hero.state)
+        self.objects.append(self.stateobject)
 
     def create_level(self, hero_state):
         level = '01'
