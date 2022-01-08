@@ -1,29 +1,30 @@
 from typing import Sequence
 import pygame as pg
 
-from pygame import Surface
-from models.customobject import CustomObject
-from utils.constants import FIELD_HEIGHT, FIELD_WIDTH
+from models.customscreenobject import CustomScreenObject
+from utils.constants import TITLESCREEN_TIMEOUT
 
-class TitleObject(CustomObject):
+class TitleObject(CustomScreenObject):
     def __init__(self, state):
-        super().__init__(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
-        self.state = state
+        super().__init__(state)
+        self.title_timeout = pg.time.get_ticks() + TITLESCREEN_TIMEOUT
 
-    def get_image(self) -> Surface:
-        color = (128, 0, 0)
-        surface = pg.Surface((self.right, self.bottom), pg.SRCALPHA)        
-        surface.fill(color)
-
-        return surface
-
-    def draw(self, surface:Surface):
-        surface.blit(self.get_image(), (self.left, self.top))
-
-    def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
+    def to_menu(self):
+        pg.mixer.music.stop()
         self.state.statemodel.title_menu()
 
+    def update_state(self):
+        super().update_state()
+
+        if pg.time.get_ticks() > self.title_timeout:
+            self.to_menu()            
+
+    # при нажатии на пробел во время заставки - переход к меню
+    def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
+        self.to_menu()
+
+    # при клике во время заставки - переход к меню
     def mouse_handler(self, type, pos):
         if type == pg.MOUSEBUTTONDOWN:
-            self.state.statemodel.title_menu()
+            self.to_menu()
 

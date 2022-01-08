@@ -7,13 +7,6 @@ class RoundTitleScreen(GameState):
         self.data = None
         super().__init__(game, model, 'RoundTitleScreen')
 
-    def handle_on_enter(self, eventdata):
-        self.init_objects()
-        self.init_handlers()
-
-        self.create_objects()
-        self.create_handlers()
-
     def create_objects(self):
         self.roundtitleobject = RoundTitleObject(self)
         self.objects.append(self.roundtitleobject)

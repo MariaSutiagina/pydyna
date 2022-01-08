@@ -1,13 +1,16 @@
 from typing import Sequence
 import pygame as pg
 from pygame import Surface
-from models.customobject import CustomObject
+from models.customscreenobject import CustomScreenObject
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH
 
-class LevelTitleObject(CustomObject):
+class LevelTitleObject(CustomScreenObject):
     def __init__(self, state):
-        super().__init__(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
-        self.state = state
+        super().__init__(state)
+
+    def to_roundscreen(self):
+        pg.mixer.music.stop()
+        self.state.statemodel.level_round(self.state.statemodel.data)
 
     def get_image(self) -> Surface:
         color = (0, 0, 128)
@@ -20,8 +23,8 @@ class LevelTitleObject(CustomObject):
         surface.blit(self.get_image(), (self.left, self.top))
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
-        self.state.statemodel.level_round(self.state.statemodel.data)
+        self.to_roundscreen()
 
     def mouse_handler(self, type, pos):
         if type == pg.MOUSEBUTTONDOWN:
-            self.state.statemodel.level_round(self.state.statemodel.data)
+            self.to_roundscreen()

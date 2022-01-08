@@ -3,17 +3,14 @@ import pygame as pg
 
 import pygame_menu as pgm
 from pygame_menu.themes import THEME_ORANGE as menu_theme
-from pygame_menu.widgets.core import widget
-
 
 from pygame import Surface
-from models.customobject import CustomObject
+from models.customscreenobject import CustomScreenObject
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH
 
-class MenuObject(CustomObject):
+class MenuObject(CustomScreenObject):
     def __init__(self, state):
-        super().__init__(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
-        self.state = state
+        super().__init__(state)
         self.init_menu()
 
     def draw(self, surface:Surface):
@@ -27,12 +24,19 @@ class MenuObject(CustomObject):
             self.state.statemodel.menu_level()
     
     def to_leveltitle(self):
+        pg.mixer.music.stop()
         self.menu.disable()
         self.state.statemodel.menu_level()
 
     def to_password(self):
+        pg.mixer.music.stop()
         self.menu.disable()
         self.state.statemodel.menu_password()
+
+    def to_exit(self):
+        pg.mixer.music.stop()
+        self.menu.disable()
+        self.state.statemodel.menu_exit()
 
     def init_menu(self):
         menu_theme.set_background_color_opacity(0.1)
@@ -50,5 +54,5 @@ class MenuObject(CustomObject):
 
         self.menu.add.button('Go Play',  self.to_leveltitle)            
         self.menu.add.button('Password',  self.to_password)                            
-        self.menu.add.button('Quit',  lambda: self.state.statemodel.menu_exit())     
+        self.menu.add.button('Quit',  self.to_exit)     
 

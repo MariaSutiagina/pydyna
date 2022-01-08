@@ -9,13 +9,6 @@ class GameOverScreen(GameState):
     def __init__(self, game, model):
         super().__init__(game, model, 'GameOverScreen')
 
-    def handle_on_enter(self, eventdata):
-        self.init_objects()
-        self.init_handlers()
-
-        self.create_objects()
-        self.create_handlers()
-
     def create_objects(self):
         self.menu = GameOverMenuObject(self)
         self.objects.append(self.menu)

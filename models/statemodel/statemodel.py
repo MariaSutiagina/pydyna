@@ -64,12 +64,16 @@ class StateModel:
         ]
         pass
 
+    #   при входе в каждое состояние вызываем обработчик входа у объекта состояния
     def on_enter(self, eventdata):
         eventdata.state.handle_on_enter(eventdata)
 
+    #   при выходе из каждого состояния вызываем обработчик выхода у объекта состояния
     def on_exit(self, eventdata):
         eventdata.state.handle_on_exit(eventdata)
 
+    #  обработчик перехода из состояния в состояние 
+    # (сохраняем в модели данные, которые переходят из одного состояния в другое)
     def set_environment(self, eventdata):
         if 'data' in eventdata.kwargs:
             self.data = eventdata.kwargs['data']
@@ -77,9 +81,11 @@ class StateModel:
             self.data = None    
 
     @property
+    # возвращает список состояний
     def states(self):
         return self.states_list
 
     @property
+    # возвращает список переходов
     def transitions(self):
         return self.transitions_list

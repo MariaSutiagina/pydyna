@@ -46,15 +46,19 @@ class Game:
                 for handler in self.get_state().mouse_handlers:
                     handler(event.type, event.pos)
             elif event.type == E_BOMB:
+                #   передаем события от бомб в обработчики на текущем игровом экране
                 for handler in self.get_state().bomb_handlers[event.action]:
                     handler(event)
             elif event.type == E_EXIT:
+                #   передаем события от объекта "выход" в обработчики на текущем игровом экране
                 for handler in self.get_state().exit_handlers[event.action]:
                     handler(event)
             elif event.type == E_MONSTER:
+                #   передаем события от монстров в обработчики на текущем игровом экране
                 for handler in self.get_state().monster_handlers[event.action]:
                     handler(event)
             elif event.type == E_TREASURE:
+                #   передаем события от сокровищ в обработчики на текущем игровом экране
                 for handler in self.get_state().treasure_handlers[event.action]:
                     handler(event)
         if self.get_state().dispatcher:

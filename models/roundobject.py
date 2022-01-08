@@ -4,7 +4,7 @@ import pygame as pg
 from pygame import Rect, Surface
 from pygame.event import Event
 from models.bomb import Bomb, BombRect
-from models.customobject import CustomObject
+from models.customscreenobject import CustomScreenObject
 from models.hero import Hero
 from models.level import Level
 from models.monster import Monster
@@ -18,10 +18,9 @@ from utils.types import BombAction, Direction, ExitAction, TreasureAction
 from utils.utils import collision_rect
 
 
-class RoundObject(CustomObject):
+class RoundObject(CustomScreenObject):
     def __init__(self, game, state):
-        super().__init__(0, 0, cfg.FIELD_WIDTH, cfg.FIELD_HEIGHT)
-        self.state = state
+        super().__init__(state)
         self.game = game
         self.paused = False
         self.create_objects()
@@ -356,6 +355,7 @@ class RoundObject(CustomObject):
             self.process_bomb_collisions(monster_rects)
 
     def update_state(self):
+        super().update_state()
         if not self.paused:
             for o in self.objects:
                 o.update_state()

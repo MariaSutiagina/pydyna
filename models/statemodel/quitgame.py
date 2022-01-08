@@ -7,7 +7,7 @@ class QuitGame(GameState):
     def __init__(self, game, model):
         super().__init__(game, model, 'QuitGame')
 
-    def handle_on_enter(self, eventdata):
+    def initialize(self):
         pygame.quit()
         sys.exit()
         

@@ -37,6 +37,7 @@ class Dyna(Game):
                                      model_attribute='game_state', initial='TitleScreen')
         return statemodel
     
+    # получаем текущий игровой экран
     def get_state(self):
         return self.state_machine.get_state(self.statemodel.game_state)
 
