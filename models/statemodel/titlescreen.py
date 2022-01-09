@@ -15,7 +15,7 @@ class TitleScreen(GameState):
         self.objects.append(self.titleobject)
 
     def create_handlers(self):
-        # обрабатываеются только события нажатия на пробе и клика мышью
+        # обрабатываеются только события нажатия на пробел и клика мышью
         self.keydown_handlers[pg.K_SPACE].append(self.titleobject.handle_keydown)
         self.mouse_handlers.append(self.titleobject.mouse_handler)
 
