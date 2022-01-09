@@ -65,6 +65,8 @@ class Game:
                 for handler in self.get_state().brick_handlers[event.action]:
                     handler(event)
         if self.get_state().dispatcher:
+            # у каждого состояния (экрана) может быть спец. обработчик событий - dispatcher
+            # такой обработчик, необходим, чтобы обрабатывать события вне основного цикла pygame_menu
             self.get_state().dispatcher(events)
 
     def run(self):

@@ -1,3 +1,4 @@
+from typing import Sequence
 import pygame as pg
 import io
 
@@ -15,10 +16,16 @@ class CustomScreenObject(CustomObject):
         self.image_timeout = pg.time.get_ticks() - 1
         self.image_num = 0
         self.image_surface = None
-        # bybwbfkbpfwbz gfgfvtnhjd vepsrb
+        # инициализация параметров музыки
         self.music_num = 0
         self.music_timeout = pg.time.get_ticks() - 1
         self.music = None
+
+    def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
+        pass
+
+    def mouse_handler(self, type, pos):
+        pass
 
     # создание фонового изображения
     def create_surface(self) -> Surface:

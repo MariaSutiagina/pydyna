@@ -1,4 +1,3 @@
-from typing import Sequence, List
 import pygame as pg
 import json
 
@@ -6,15 +5,14 @@ import pygame_menu as pgm
 from pygame_menu.locals import ALIGN_CENTER, ALIGN_LEFT
 
 from pygame import Surface
-from models.customobject import CustomObject
+from models.customscreenobject import CustomScreenObject
 from utils.characterstate import CharacterState
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, KEYBOARD
 from utils.statemanager import StateManager
 
-class PasswordObject(CustomObject):
+class PasswordObject(CustomScreenObject):
     def __init__(self, state):
-        super().__init__(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
-        self.state = state
+        super().__init__(state)
         self.password = 'ABCDEFGH'
         self.current_position = 7
         self.init_menu()
@@ -23,12 +21,9 @@ class PasswordObject(CustomObject):
         if self.menu.is_enabled():
             self.menu.draw(surface)
 
-    def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
-        pass
-
-    def mouse_handler(self, type, pos):
-        pass
-    
+    # у каждого состояния (экрана) может быть спец. обработчик событий - dispatcher
+    # такой обработчик, необходим, чтобы обрабатывать события вне основного цикла pygame_menu
+    # здесь этот обработчик необходим, чтобы обрабатывать K_ESCAPE вне цикла обработки событий меню
     def dispatcher(self, events):
         if self.menu.is_enabled():
             self.menu.update(events)
@@ -38,22 +33,27 @@ class PasswordObject(CustomObject):
                         if not self.password_wgt.active:
                             self.to_menu()
 
+    # проверка пароля и переход к раунду, который соответствует паролю
     def on_password_return(self, value):
         json_data = StateManager().load_state(value.upper())
         if json_data:
             self.state.statemodel.data = CharacterState(json.loads(json_data))
             self.to_leveltitle()
 
+    # переход к раунду
     def to_leveltitle(self):
         self.menu.disable()
         self.state.statemodel.password_play()
 
+    # переход к меню после нажатия K_ESCAPE
     def to_menu(self):
         self.menu.disable()
         self.state.statemodel.password_menu()
 
 
+    # создание объекта меню
     def init_menu(self):
+        # настраиваем новую тему
         theme = pgm.Theme()
 
         theme.set_background_color_opacity(0)
@@ -71,7 +71,7 @@ class PasswordObject(CustomObject):
         effect.background_color = (33,33,33)
         theme.widget_selection_effect = pgm.widgets.NoneSelection()
 
-
+        # создаем меню   
         self.menu = pgm.Menu(
             center_content=False,
             mouse_motion_selection=False,
@@ -82,9 +82,12 @@ class PasswordObject(CustomObject):
             title='Enter Round Password'
         )
 
+        # добавляем в меню метку и строку ввода пароля
+        # по нажатию K_RETURN проверяем пароль и переходим к соответствующему уровню/раунду
         frame = self.menu.add.frame_h(800, 80, margin=(1, 0))
         widget = frame.pack(self.menu.add.label(title='Enter round password:', selectable=False), align=ALIGN_LEFT, margin=(35, 0))
         font_color = (0xff, 0xf1, 0xc9)
+        # по нажатию K_RETURN проверяем пароль и переходим к соответствующему уровню/раунду
         self.password_wgt = self.menu.add.text_input(title='', 
                                                      default=self.password, 
                                                      maxchar=8, 

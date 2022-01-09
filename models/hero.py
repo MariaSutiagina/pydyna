@@ -94,10 +94,8 @@ class Hero(CustomCharacter):
             if new_direction in position_in_tile(*position) or \
                 new_direction == Direction.NONE:
                 direction = new_direction
-                print(f'new direction = {direction}')
             else:
                 direction = self.state.old_direction
-                print(f'old direction = {direction}')        
             
             if self.state.can_exit or self.state.can_use_exit:
                 if exit_position_collided(position, self.get_level()):
