@@ -5,11 +5,12 @@ PyGame clone of Dyna Blaster game
 install:
 
 ```bash
+sudo apt install freepats
 pip install -r requirements.txt
 ```
 
-main game file is pydyna.py:
+game module is pydyna - so invoke to start:
 
 ```bash
-python -m pydyna.py
+python -m pydyna
 ```
