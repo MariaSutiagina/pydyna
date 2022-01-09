@@ -35,9 +35,15 @@ class PasswordObject(CustomScreenObject):
 
     # проверка пароля и переход к раунду, который соответствует паролю
     def on_password_return(self, value):
+        # объект StateManager позволяет сохранить и загрузить состояние игры
+        # загружаем состояние игры - по введенному паролю, 
+        # если код соответствует какому-либо из сохраненных состояний - 
+        # данные состояния возвращаются в json_data
         json_data = StateManager().load_state(value.upper())
         if json_data:
+            # сохраняем данные состояния в модели состояний StateModel
             self.state.statemodel.data = CharacterState(json.loads(json_data))
+            # переходим к раунду игры, который соотвестсвует состоянию (сначала - к заставке раунда)
             self.to_leveltitle()
 
     # переход к раунду
