@@ -215,7 +215,6 @@ class RoundObject(CustomScreenObject):
         self.hero.state.can_use_exit = False
         self.hero.state.treasure_timeout = None
         self.hero.state.round_timeout = None
-        # self.hero.state.password = StateManager().save_state_enc(json.dumps(self.hero.state.to_dict()))
         if new_level > old_level:
             self.hero.state.score += cfg.LEVEL_SCORE
             self.game.statemodel.play_next_level(data=self.hero.state)

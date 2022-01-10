@@ -54,6 +54,7 @@ class CustomScreenObject(CustomObject):
 
         return sound
 
+    # возвращает сформированную ранее поверхность с фоновым рисунком
     def get_image(self) -> Surface:
         return self.image_surface
     

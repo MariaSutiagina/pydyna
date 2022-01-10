@@ -4,7 +4,7 @@ import pygame as pg
 from models.customscreenobject import CustomScreenObject
 from utils.constants import TITLESCREEN_TIMEOUT
 
-# реализует функциональности игровой заставки
+# реализует функциональность игровой заставки
 # наследуется от CustomScreenObject
 class TitleObject(CustomScreenObject):
     def __init__(self, state):

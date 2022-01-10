@@ -14,7 +14,6 @@ class PasswordObject(CustomScreenObject):
     def __init__(self, state):
         super().__init__(state)
         self.password = 'ABCDEFGH'
-        self.current_position = 7
         self.init_menu()
 
     def draw(self, surface:Surface):
