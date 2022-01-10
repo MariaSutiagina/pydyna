@@ -1,3 +1,4 @@
+from models.statemodel.gamewinscreen import GameWinScreen
 from models.statemodel.titlescreen import TitleScreen
 from models.statemodel.menuscreen import MenuScreen
 from models.statemodel.passwordscreen import PasswordScreen
@@ -24,6 +25,7 @@ class StateModel:
             LevelTitleScreen(game, self),    # заставка уровня
             RoundTitleScreen(game, self),    # заставка раунда
             RoundScreen(game, self),         # игровой уровень
+            GameWinScreen(game, self),       #  финальный экран
             QuitGame(game, self)             # техническое состояние - выход из игры
         ]
 

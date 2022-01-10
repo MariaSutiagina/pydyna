@@ -49,13 +49,14 @@ class StateManager(metaclass=MetaSingleton):
         # подключение к базе берем из окружения (реализуется объектом Environment)
         db = Environment().db
         # вычитываем данные из таблицы hero по введенному иргоком паролю 
-        query = f"select 1 from levels where level={state.level} and round={state.round}"
+        query = f"select 1 from levels where level='{state.level}' and round='{state.round}'"
         cursor = db.query(query)
         empty = True
         for row in cursor:
             empty = False
             break
-        return empty
+
+        return not empty
 
                 
 
