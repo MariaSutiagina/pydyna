@@ -2,30 +2,23 @@ from typing import Sequence
 import pygame as pg
 from pygame import Surface
 from models.customscreenobject import CustomScreenObject
-from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, GAME_FONT_PATH
+from utils.constants import GAME_FONT_PATH
 
-# реализует функциональность заставки раунда
+# реализует функциональность  финального экрана
 # наследуется от CustomScreenObject
-class RoundTitleObject(CustomScreenObject):
+class GameWinObject(CustomScreenObject):
     def __init__(self, state):
         super().__init__(state)
         self.font = pg.font.Font(GAME_FONT_PATH, 190)
 
-    # переход к игровому раунду
-    def to_round(self):
+    # переход в меню
+    def to_menu(self):
         pg.mixer.music.stop()
-        # раунду передается состояние от предудущего раунда (self.state.statemodel.data)
-        self.state.statemodel.round_play(data=self.state.statemodel.data)
+        self.state.statemodel.gamewin_menu()
 
     # формирует изображение заставки раунда
     def get_image(self) -> Surface:
-        if self.state.statemodel.data:
-            level = self.state.statemodel.data.level
-            round = self.state.statemodel.data.round
-        else:
-            level = '01'
-            round = '01'
-        round_text = f'ROUND {level}-{round}'
+        round_text = f'YOU WIN'
         color = (128, 0, 128)
         surface = pg.Surface((self.right, self.bottom), pg.SRCALPHA)        
         surface.fill(color)
@@ -41,9 +34,9 @@ class RoundTitleObject(CustomScreenObject):
     # обработчик нажатий клавиш на клавиатуре
     # сюда попадают только нажатия на пробел (K_SPACE)
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
-        self.to_round()
+        self.to_menu()
 
     # обработчик событий от мыши
     def mouse_handler(self, type, pos):
         if type == pg.MOUSEBUTTONDOWN:
-            self.to_round()
+            self.to_menu()

@@ -43,17 +43,19 @@ class StateManager(metaclass=MetaSingleton):
             data = password_decrypt(enc_data, password)
             # возвращаем дешифрованные данные состояния игры
             return data.decode()
-
-        # query = f"select data from hero where password is NULL"
-        # cursor = db.query(query)
-        # for row in cursor:
-        #     enc_data = row['data']
-        #     try:
-        #         data = password_decrypt(enc_data, password)
-        #         o = json.loads(data)
-        #         return data
-        #     except:
-        #         pass
+    
+    # проверяем состояние - наличие раунда и уровня
+    def check_state(self, state):
+        # подключение к базе берем из окружения (реализуется объектом Environment)
+        db = Environment().db
+        # вычитываем данные из таблицы hero по введенному иргоком паролю 
+        query = f"select 1 from levels where level={state.level} and round={state.round}"
+        cursor = db.query(query)
+        empty = True
+        for row in cursor:
+            empty = False
+            break
+        return empty
 
                 
 

@@ -15,6 +15,7 @@ from models.field import Field
 from utils.characterstate import CharacterState
 
 import utils.constants as cfg
+from utils.statemanager import StateManager
 from utils.types import BombAction, Direction, ExitAction, MonsterAction, TreasureAction
 from utils.utils import collision_rect
 
@@ -215,12 +216,19 @@ class RoundObject(CustomScreenObject):
         self.hero.state.can_use_exit = False
         self.hero.state.treasure_timeout = None
         self.hero.state.round_timeout = None
-        if new_level > old_level:
-            self.hero.state.score += cfg.LEVEL_SCORE
-            self.game.statemodel.play_next_level(data=self.hero.state)
+
+        if StateManager().check_state(self.hero.state):
+            if new_level > old_level:
+                pg.mixer.music.stop()
+                self.hero.state.score += cfg.LEVEL_SCORE
+                self.game.statemodel.play_next_level(data=self.hero.state)
+            else:
+                pg.mixer.music.stop()
+                self.hero.state.score += cfg.ROUND_SCORE
+                self.game.statemodel.play_next_round(data=self.hero.state)
         else:
-            self.hero.state.score += cfg.ROUND_SCORE
-            self.game.statemodel.play_next_round(data=self.hero.state)
+            pg.mixer.music.stop()
+            self.game.statemodel.play_win()
 
     def handle_exit_replay(self, eventdata):
         lifes = self.hero.state.lifes

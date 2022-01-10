@@ -50,10 +50,14 @@ class StateModel:
             {'trigger': 'play_next_level', 'source': 'RoundScreen', 'dest': 'LevelTitleScreen', 'before': 'set_environment'},
             # из экрана RoundScreen попадаем в экран меню окончания игры GameOverScreen сгенерировав событие play_gameover
             {'trigger': 'play_gameover', 'source': 'RoundScreen', 'dest': 'GameOverScreen', 'before': 'set_environment'},
+            # из экрана RoundScreen попадаем в экран окончания игры GameWinScreen сгенерировав событие play_win
+            {'trigger': 'play_win', 'source': 'RoundScreen', 'dest': 'GameWinScreen', 'before': 'set_environment'},
             # из экрана RoundScreen попадаем в экран меню игры MenuScreen сгенерировав событие play_menu
             {'trigger': 'play_menu', 'source': 'RoundScreen', 'dest': 'MenuScreen'},
             # из экрана GameOverScreen попадаем в экран заставки раунда RoundTitleScreen для продолжения игры сгенерировав событие gameover_continue
             {'trigger': 'gameover_continue', 'source': 'GameOverScreen', 'dest': 'RoundTitleScreen', 'before': 'set_environment'},
+            # из экрана GameWinScreen попадаем в экран меню MenuScreen сгенерировав событие gamewin_menu
+            {'trigger': 'gamewin_menu', 'source': 'GameWinScreen', 'dest': 'MenuScreen'},
             # из экрана GameOverScreen попадаем в экран меню MenuScreen сгенерировав событие gameover_end
             {'trigger': 'gameover_end', 'source': 'GameOverScreen', 'dest': 'MenuScreen', 'before': 'set_environment'},
             # из экрана PasswordScreen попадаем в экран заставки раунда RoundTitleScreen сгенерировав событие password_play
@@ -62,7 +66,6 @@ class StateModel:
             {'trigger': 'password_menu', 'source': 'PasswordScreen', 'dest': 'MenuScreen'},
 
         ]
-        pass
 
     #   при входе в каждое состояние вызываем обработчик входа у объекта состояния
     def on_enter(self, eventdata):

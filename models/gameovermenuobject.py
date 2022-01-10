@@ -8,28 +8,33 @@ from pygame_menu.locals import ALIGN_CENTER
 
 
 from pygame import Surface
-from models.customobject import CustomObject
+from models.customscreenobject import CustomScreenObject
 from utils.characterstate import CharacterStateEncoder
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH
 from utils.statemanager import StateManager
 
-class GameOverMenuObject(CustomObject):
+# реализует функциональность меню окончания игры
+# наследуется от CustomScreenObject
+class GameOverMenuObject(CustomScreenObject):
     def __init__(self, state):
-        super().__init__(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
+        super().__init__(state)
         self.state = state
         state_dict = state.statemodel.data
+        # сохраняем состояние игры, получаем сгенеренный для демонстрации игроку 
         self.password = StateManager().save_state_enc(json.dumps(state_dict, cls=CharacterStateEncoder))
         self.init_menu()
 
+    # метод отрисовки экрана, который вызывается на каждом тике часов
     def draw(self, surface:Surface):
+        # меню само себя отрисует (здесь отрисовка и обработка событий меню)
         self.menu.mainloop(surface)               
 
-    def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
-        self.state.statemodel.menu_level()
+    # def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
+    #     self.state.statemodel.menu_level()
 
-    def mouse_handler(self, type, pos):
-        if type == pg.MOUSEBUTTONDOWN:
-            self.state.statemodel.menu_level()
+    # def mouse_handler(self, type, pos):
+    #     if type == pg.MOUSEBUTTONDOWN:
+    #         self.state.statemodel.menu_level()
     
     def to_roundtitle(self):
         self.menu.disable()
@@ -39,7 +44,9 @@ class GameOverMenuObject(CustomObject):
         self.menu.disable()
         self.state.statemodel.gameover_end(data=None)
 
+    # создание объекта меню
     def init_menu(self):
+        # настраиваем новую тему
         theme = pgm.Theme()
 
         theme.set_background_color_opacity(0)
@@ -57,18 +64,23 @@ class GameOverMenuObject(CustomObject):
         effect.background_color = (33,33,33)
         theme.widget_selection_effect = effect
 
+        # создаем меню   
         self.menu = pgm.Menu(
             width=FIELD_WIDTH * 0.8,
             height=FIELD_HEIGHT * 0.7,
             theme=theme, 
             title='Dyna Blaster'
         )
+
+        # если остались попытки - добавляем пункт меню "продолжить (количество оставшихся попыток)"
         retries = self.state.statemodel.data.retries
         if retries > 0:
             self.menu.add.button(f'Continue Play ({retries})',  self.to_roundtitle)
-
+        
+        # добавляем пункт окончить игру
         self.menu.add.button('End Game',  self.to_menu)  
 
-        if retries > 0:
-            frame = self.menu.add.frame_h(800, 180, margin=(0, 100))
-            widget = frame.pack(self.menu.add.label(title='Password: '+ self.password, font_size=80, selectable=False, padding=(100,0,0,0)), align=ALIGN_CENTER, margin=(0, 0))
+        # if retries > 0:
+        # показываем пароль от сохраненного состояния игры
+        frame = self.menu.add.frame_h(800, 180, margin=(0, 100))
+        widget = frame.pack(self.menu.add.label(title='Password: '+ self.password, font_size=80, selectable=False, padding=(100,0,0,0)), align=ALIGN_CENTER, margin=(0, 0))
