@@ -20,44 +20,64 @@ from utils.types import BombAction, Direction, ExitAction, MonsterAction, Treasu
 from utils.utils import collision_rect
 
 
+# при входе в раунд создаетс объек RoundObject
+# Наследуется от CustomScreenObject
 class RoundObject(CustomScreenObject):
     def __init__(self, game, state):
         super().__init__(state)
         self.game = game
         self.paused = False
         self.create_objects()
-
-    def mouse_handler(self, type, pos):
-        pass
-
+    
+    # инициализирует все объекты раунда
     def create_objects(self):
+        # создаем список объектов
+        # которые потом будем опрашивать на предмет изменения состояния и 
+        # обработки событий от клавиатуры и др игровых событий
         self.objects = []
-        # if self.state.statemodel.data:
-        #     self.state.statemodel.data.round = 8
+
+        # инициализируем уровень
+        # вытаскиваем его из базы по параметрам level и round  
         self.create_level(self.state.statemodel.data)
+        # инициализируем границы поля
         self.create_wall()
+        # инициализируем поле
         self.create_field()
+        # инициализируем монстров
         self.create_characters()
+        # инициализируем героя
         self.create_hero(self.state.statemodel.data)
+        # инициализируем объект отображения состояния
         self.create_state_object()
 
+    # инициализируем объект отображения состояния
     def create_state_object(self):
+        # создаем объект StateObject
+        # и добаввляем его в списой объектов
         self.stateobject = StateObject(self.game, self.hero.state)
         self.objects.append(self.stateobject)
-
+    
+    # инициализируем уровень
+    # вытаскиваем его из базы по параметрам level и round  
     def create_level(self, hero_state):
         level = '01'
         round = '01'
         if hero_state:
             level = hero_state.level
             round = hero_state.round
+        # создаем объект Level
         self.level = Level(self.game, int(level), int(round))
 
+    
+    # инициализируем границы поля
     def create_wall(self):
+        # создаем объект Wall и добавляем в список объектов
         self.wall = Wall(self.level)
         self.objects.append(self.wall)
 
+    # инициализируем поле
     def create_field(self):
+        # создаем объект  Field и добавляем в список объектов
         self.field = Field(self.level)
         self.objects.append(self.field)
 
