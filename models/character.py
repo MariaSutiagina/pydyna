@@ -89,6 +89,8 @@ class Character(CustomCharacter):
                 self.state.children_make_timeout = pg.time.get_ticks() + self.get_capabilities()['pregnancy_duration'] * 1000
 
     def update_state(self):
+        # super().update_state()
+
         speed = self.compute_speed()
         old_position = (self.state.cellx, self.state.celly)
         position = self.compute_position(speed, self.state.direction)
@@ -113,9 +115,6 @@ class Character(CustomCharacter):
         self.compute_and_update_chain(old_position)
         self.compute_and_update_children()
 
-
-
-        return super().update_state()
 
     def compute_and_update_state(self, position: Tuple, speed: int, direction: Direction):
         super().compute_and_update_state(position, speed, direction)

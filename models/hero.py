@@ -5,7 +5,7 @@ from pygame.surface import Surface
 from models.customcharacter import CustomCharacter
 from models.treasurefactory import TreasureFactory
 from utils.characterstate import CharacterState
-from utils.constants import E_EXIT, E_TREASURE, MAX_BOMB_STRENGTH, MAX_SPEED, TILE_SIZE
+from utils.constants import E_EXIT, E_TREASURE, MAX_BOMB_STRENGTH, MAX_SPEED, MOVEMENT_TIMEOUT, TILE_SIZE
 from utils.types import Direction, ExitAction, TreasureAction
 from utils.utils import exit_position_collided, position_in_tile, tile_position_collided, treasure_position_collided, wall_position_collided
 
@@ -23,6 +23,28 @@ class Hero(CustomCharacter):
         state.rect = HeroRect(self, state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
         super().__init__(game, state, image)
 
+    def get_resource_ids(self):
+        return ['hero-front-up', 'hero-front-dn', 
+                'hero-side-up-lt', 'hero-side-dn-lt', 
+                'hero-kick', 'hero-dead',
+                'hero-side-dn-rt', 'hero-side-up-rt']
+
+    def add_resource(self, id, resource):
+        parts = id.split('-')
+        if parts[1] == 'front':
+            self.state.resources.up[parts[2]] = resource
+            self.state.resources.down[parts[2]] = resource
+        elif parts[1] == 'side':
+            if parts[3] == 'lt':
+                self.state.resources.left[parts[2]] = resource
+            elif parts[3] == 'rt':
+                self.state.resources.right[parts[2]] = resource
+        elif parts[1] == 'kick':
+            self.state.resources.kick = resource
+        elif parts[1] == 'dead':
+            self.state.resources.dead = resource
+        
+
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
         self.state.command.key = key
 
@@ -38,12 +60,16 @@ class Hero(CustomCharacter):
         direction = Direction.NONE
         if key == pg.K_LEFT:
             direction = Direction.LEFT
+            self.switch_movement_on()
         elif key == pg.K_RIGHT:
             direction = Direction.RIGHT
+            self.switch_movement_on()
         elif key == pg.K_UP:
             direction = Direction.UP
+            self.switch_movement_on()
         elif key == pg.K_DOWN:
             direction = Direction.DOWN
+            self.switch_movement_on()
         return direction
 
     def compute_direction(self) -> Direction:
@@ -77,6 +103,10 @@ class Hero(CustomCharacter):
     def get_level(self):
         return self.game.get_state().roundobject.level
 
+    def switch_movement_on(self):
+        self.movement_stopped = False
+        self.move_timeout = pg.time.get_ticks() + MOVEMENT_TIMEOUT
+
     def update_state(self):
         if self.state.alive == True:
             speed = self.compute_speed()
@@ -91,6 +121,8 @@ class Hero(CustomCharacter):
             
             direction = Direction.NONE
             new_direction = self.compute_direction()
+            if new_direction != Direction.NONE:
+                self.state.saved_direction = new_direction
             if new_direction in position_in_tile(*position) or \
                 new_direction == Direction.NONE:
                 direction = new_direction
@@ -114,6 +146,8 @@ class Hero(CustomCharacter):
         else:
             if pg.time.get_ticks() >= self.state.time_to_hide:
                 pg.event.post(Event(E_EXIT, action=ExitAction.REPLAY))
+
+        super().update_state()
 
 
             

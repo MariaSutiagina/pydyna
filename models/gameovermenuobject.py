@@ -1,9 +1,7 @@
-from typing import Sequence
-import pygame as pg
 import json
+from addict import Dict
 import pygame_menu as pgm
 from pygame_menu.themes import THEME_ORANGE as menu_theme
-from pygame_menu.widgets.core import widget
 from pygame_menu.locals import ALIGN_CENTER
 
 
@@ -20,6 +18,7 @@ class GameOverMenuObject(CustomScreenObject):
         super().__init__(state)
         self.state = state
         state_dict = state.statemodel.data
+        state_dict.resources = Dict()
         # сохраняем состояние игры, получаем сгенеренный для демонстрации игроку 
         self.password = StateManager().save_state_enc(json.dumps(state_dict, cls=CharacterStateEncoder))
         self.init_menu()
