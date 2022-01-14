@@ -1,9 +1,10 @@
-from typing import Tuple
+from addict import Dict
+
+from utils.resourcemanager import ResourceManager()
 import pygame as pg
 from pygame import Surface
 from models.customobject import CustomObject
 from models.level import Level
-from utils.characterstate import CharacterState
 from utils.constants import BRICK_HARDNESS_MAX, EXIT_TILE_TYPE, GAME_FONT_PATH, TREASURE_TILE_TYPE, TREASURE_TYPES_COUNT, WALL_W, CELL_W, CELL_H, FIELD_WIDTH_INNER, FIELD_HEIGHT_INNER, FIELD_TILES_W, FIELD_TILES_H, TILE_SIZE
 from models.tiles import Tile
 from utils.utils import cell_pos_to_pixel
@@ -20,6 +21,15 @@ class Field(CustomObject):
         self.tiles_h = FIELD_TILES_H
 
         super().__init__(self.x, self.y, self.w, self.h)
+        self.get_resources()
+
+    def get_resources(self):
+        # level = self.level.level
+        level = 1
+        resources = dict()
+        resources['floor'] = ResourceManager()[f'tile-road-{level:02}']
+        resources['bricks'] = ResourceManager()[f'tile-brick-{level:02}']
+        resources['solid'] = ResourceManager()[f'tile-solid-{level:02}']
 
     def get_sort_key(self):
         return 20

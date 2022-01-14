@@ -18,10 +18,10 @@ class HeroRect(pg.Rect):
         return {'left': self.left, 'top': self.top, 'width': self.width, 'height': self.height}
 
 class Hero(CustomCharacter):
-    def __init__(self, game, state:CharacterState=None, image:Surface=None):
+    def __init__(self, game, state:CharacterState=None):
         state.bombs_count = state.bombs_capacity
         state.rect = HeroRect(self, state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
-        super().__init__(game, state, image)
+        super().__init__(game, state, None)
 
     def get_resource_ids(self):
         return ['hero-front-up', 'hero-front-dn', 
