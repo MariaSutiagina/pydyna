@@ -33,6 +33,8 @@ class Bomb(CustomCharacter):
     def get_round(self):
         return getattr(self.game.get_state(), 'roundobject', None)
 
+    def get_sort_key(self):
+        return 90
 
     def handle_keydown(self, key:int, keys_pressed:Sequence[bool]):
         self.state.command.key = key
@@ -107,7 +109,7 @@ class Bomb(CustomCharacter):
             if pg.time.get_ticks() >= self.state.explosion_end_timeout:
                 pg.event.post(Event(E_BOMB, action=BombAction.END_EXPLOSION, bomb=self))
         else:
-            if (not self.state.can_remote) and pg.time.get_ticks() >= self.state.explosion_timeout:
+            if (not self.state.is_remote) and pg.time.get_ticks() >= self.state.explosion_timeout:
                 pg.event.post(Event(E_BOMB, action=BombAction.START_EXPLOSION, bomb=self))
 
 

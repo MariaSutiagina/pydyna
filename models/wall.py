@@ -109,6 +109,9 @@ class Wall(CustomObject):
 
         super().__init__(0,0,0,0)
 
+    def get_sort_key(self):
+        return 10
+
     def draw(self, surface:Surface):
         for side in self.walls:
             side.draw(surface)

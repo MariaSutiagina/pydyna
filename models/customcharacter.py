@@ -47,24 +47,29 @@ class CustomCharacter(CustomObject):
 
     def select_image(self):
         resource = self.state.resources.up.dn.image['N001']
-        if self.movement_stopped:
-            if self.state.saved_direction == Direction.UP:
-                resource = self.state.resources.up.up.image['N001']
-            elif self.state.saved_direction == Direction.DOWN:
-                resource = self.state.resources.down.up.image['N001']
-            elif self.state.saved_direction == Direction.LEFT:
-                resource = self.state.resources.left.up.image['N001']
-            elif self.state.saved_direction == Direction.RIGHT:
-                resource = self.state.resources.right.up.image['N001']
+        if self.state.is_exited:
+            resource = self.state.resources.kick.image['N001']
+        elif self.state.alive:
+            if self.movement_stopped:
+                if self.state.saved_direction == Direction.UP:
+                    resource = self.state.resources.up.up.image['N001']
+                elif self.state.saved_direction == Direction.DOWN:
+                    resource = self.state.resources.down.up.image['N001']
+                elif self.state.saved_direction == Direction.LEFT:
+                    resource = self.state.resources.left.up.image['N001']
+                elif self.state.saved_direction == Direction.RIGHT:
+                    resource = self.state.resources.right.up.image['N001']
+            else:
+                if self.state.saved_direction == Direction.UP:
+                    resource = self.state.resources.up.dn.image[f'N{self.animation_stage:003}']
+                elif self.state.saved_direction == Direction.DOWN:
+                    resource = self.state.resources.down.dn.image[f'N{self.animation_stage:003}']
+                elif self.state.saved_direction == Direction.LEFT:
+                    resource = self.state.resources.left.dn.image[f'N{self.animation_stage:003}']
+                elif self.state.saved_direction == Direction.RIGHT:
+                    resource = self.state.resources.right.dn.image[f'N{self.animation_stage:003}']
         else:
-            if self.state.saved_direction == Direction.UP:
-                resource = self.state.resources.up.dn.image[f'N{self.animation_stage:003}']
-            elif self.state.saved_direction == Direction.DOWN:
-                resource = self.state.resources.down.dn.image[f'N{self.animation_stage:003}']
-            elif self.state.saved_direction == Direction.LEFT:
-                resource = self.state.resources.left.dn.image[f'N{self.animation_stage:003}']
-            elif self.state.saved_direction == Direction.RIGHT:
-                resource = self.state.resources.right.dn.image[f'N{self.animation_stage:003}']
+            resource = self.state.resources.dead.image['N001']
         
         return resource
 

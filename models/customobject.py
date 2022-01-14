@@ -45,5 +45,8 @@ class CustomObject:
     def draw(self, surface:Surface):
         pass
 
+    def get_sort_key(self):
+        return 0
+        
     def update_state(self):
         pass

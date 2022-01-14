@@ -22,6 +22,9 @@ class StateObject(CustomObject):
             self.w = 400
             self.h = CELL_H * WALL_W
 
+    def get_sort_key(self):
+        return 12
+
     def draw(self, surface:Surface):
         text_surface = self.font.render(self.state_text, True, (0x2c, 0x75, 0xff))
         ts = (text_surface.get_width(), text_surface.get_height())

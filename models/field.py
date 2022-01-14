@@ -21,6 +21,9 @@ class Field(CustomObject):
 
         super().__init__(self.x, self.y, self.w, self.h)
 
+    def get_sort_key(self):
+        return 20
+
     def get_image(self, tx, ty):
         treasure = False
         if (tx, ty) in self.level.bricks:

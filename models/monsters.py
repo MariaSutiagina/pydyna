@@ -15,6 +15,9 @@ class Monsters(CustomObject):
         super().__init__(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
         self.load(monsterdata)
 
+    def get_sort_key(self):
+        return 80
+
     def load(self, monsterdata):
         for md in monsterdata:
             state = MonsterFactory()[md['type']] 

@@ -103,6 +103,9 @@ class Hero(CustomCharacter):
     def get_level(self):
         return self.game.get_state().roundobject.level
 
+    def get_sort_key(self):
+        return 100
+
     def switch_movement_on(self):
         self.movement_stopped = False
         self.move_timeout = pg.time.get_ticks() + MOVEMENT_TIMEOUT

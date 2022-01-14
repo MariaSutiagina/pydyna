@@ -203,7 +203,7 @@ def exit_position_collided(position:Tuple[int], level) -> Tuple[int]:
     # if is_position_in_tile(posx, posy):
     exit_tile = level.exit
     collided = get_collided_tiles(posx, posy, [exit_tile[0]])
-    return  len(collided) > 0 and level.floor[exit_tile[0]] == EXIT_TILE_TYPE
+    return  len(collided) > 0 and exit_tile[0] in level.floor and level.floor[exit_tile[0]] == EXIT_TILE_TYPE
 
     return False
 

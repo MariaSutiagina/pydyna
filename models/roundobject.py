@@ -27,8 +27,10 @@ class RoundObject(CustomScreenObject):
         super().__init__(state)
         self.game = game
         self.paused = False
+        self.exited = False
+        self.exit_timeout = None
         self.create_objects()
-    
+            
     # инициализирует все объекты раунда
     def create_objects(self):
         # создаем список объектов
@@ -49,6 +51,8 @@ class RoundObject(CustomScreenObject):
         self.create_hero(self.state.statemodel.data)
         # инициализируем объект отображения состояния
         self.create_state_object()
+
+        self.objects.sort(key=lambda x: x.get_sort_key())
 
     # инициализируем объект отображения состояния
     def create_state_object(self):
@@ -176,6 +180,7 @@ class RoundObject(CustomScreenObject):
                 'is_monster': False,
                 'is_hero': False,
                 'is_bomb': True,
+                'is_exited': False, 
                 'is_remote': self.hero.state.can_remote,
                 'explosion_timeout': pg.time.get_ticks() + cfg.EXPLOSION_TIMEOUT,
                 'explosion_size': self.hero.state.bombs_strength,
@@ -188,6 +193,8 @@ class RoundObject(CustomScreenObject):
             self.level.bombs.append(bomb)
             self.objects.append(bomb)
 
+            self.objects.sort(key=lambda x: x.get_sort_key())
+    
             self.hero.state.bombs_count -= 1
 
     def start_bomb_explosion(self, eventdata):
@@ -215,40 +222,51 @@ class RoundObject(CustomScreenObject):
         self.hero.state.can_exit = True
 
     def handle_exit_open(self, eventdata):
-        new_round = int(self.hero.state.round) + 1
-        old_level = new_level = int(self.hero.state.level)
+        if self.exit_timeout is None:
+            self.exit_timeout = pg.time.get_ticks() + cfg.EXIT_TIMEOUT
+        if pg.time.get_ticks() >= self.exit_timeout:
+            self.exit_timeout =  0
+            self.exited = False
 
-        if new_round > 8:
-            new_round = 1
-            new_level = new_level + 1
+            new_round = int(self.hero.state.round) + 1
+            old_level = new_level = int(self.hero.state.level)
 
-        self.hero.state.round = f'{new_round:02}'
-        self.hero.state.level = f'{new_level:02}'
-        self.hero.state.time_to_hide = 0
-        self.hero.state.command.key = None
-        self.hero.state.rect = None
-        self.hero.state.can_exit = False
-        self.hero.state.direction = Direction.NONE
-        self.hero.state.old_direction = Direction.NONE
-        self.hero.state.can_fly = False
-        self.hero.state.can_remote = False
-        self.hero.state.is_killer = False
-        self.hero.state.can_use_exit = False
-        self.hero.state.treasure_timeout = None
-        self.hero.state.round_timeout = None
+            if new_round > 8:
+                new_round = 1
+                new_level = new_level + 1
 
-        if StateManager().check_state(self.hero.state):
-            if new_level > old_level:
-                pg.mixer.music.stop()
-                self.hero.state.score += cfg.LEVEL_SCORE
-                self.game.statemodel.play_next_level(data=self.hero.state)
+            self.hero.state.round = f'{new_round:02}'
+            self.hero.state.level = f'{new_level:02}'
+            self.hero.state.time_to_hide = 0
+            self.hero.state.command.key = None
+            self.hero.state.rect = None
+            self.hero.state.can_exit = False
+            self.hero.state.direction = Direction.NONE
+            self.hero.state.old_direction = Direction.NONE
+            self.hero.state.can_fly = False
+            self.hero.state.can_remote = False
+            self.hero.state.is_killer = False
+            self.hero.state.is_exited = False
+            self.hero.state.can_use_exit = False
+            self.hero.state.treasure_timeout = None
+            self.hero.state.round_timeout = None
+
+            if StateManager().check_state(self.hero.state):
+                if new_level > old_level:
+                    pg.mixer.music.stop()
+                    self.hero.state.score += cfg.LEVEL_SCORE
+                    self.game.statemodel.play_next_level(data=self.hero.state)
+                else:
+                    pg.mixer.music.stop()
+                    self.hero.state.score += cfg.ROUND_SCORE
+                    self.game.statemodel.play_next_round(data=self.hero.state)
             else:
                 pg.mixer.music.stop()
-                self.hero.state.score += cfg.ROUND_SCORE
-                self.game.statemodel.play_next_round(data=self.hero.state)
+                self.game.statemodel.play_win()
         else:
-            pg.mixer.music.stop()
-            self.game.statemodel.play_win()
+            self.hero.state.is_exited = True
+            self.exited = True
+            pg.time.set_timer(event=Event(cfg.E_EXIT, action=ExitAction.OPEN), millis=cfg.EXIT_TIMEOUT, loops=1)
 
     def handle_exit_replay(self, eventdata):
         lifes = self.hero.state.lifes
@@ -414,7 +432,7 @@ class RoundObject(CustomScreenObject):
 
     def update_state(self):
         super().update_state()
-        if not self.paused:
+        if not self.paused and not self.exited:
             for o in self.objects:
                 o.update_state()
 
