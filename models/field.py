@@ -1,6 +1,3 @@
-from addict import Dict
-
-from utils.resourcemanager import ResourceManager()
 import pygame as pg
 from pygame import Surface
 from models.customobject import CustomObject
@@ -21,15 +18,6 @@ class Field(CustomObject):
         self.tiles_h = FIELD_TILES_H
 
         super().__init__(self.x, self.y, self.w, self.h)
-        self.get_resources()
-
-    def get_resources(self):
-        # level = self.level.level
-        level = 1
-        resources = dict()
-        resources['floor'] = ResourceManager()[f'tile-road-{level:02}']
-        resources['bricks'] = ResourceManager()[f'tile-brick-{level:02}']
-        resources['solid'] = ResourceManager()[f'tile-solid-{level:02}']
 
     def get_sort_key(self):
         return 20
@@ -59,7 +47,7 @@ class Field(CustomObject):
         pg.draw.rect(surface, (0, 0, 0), (0, 0, width, height), 1)
 
         if treasure:
-            treasure_type = self.level.treasure[1]
+            treasure_type = self.level.treasure[1][0]
             text_surface = self.font.render(str(treasure_type), True, (255, 255, 255))
             ts = (text_surface.get_width() // CELL_W, text_surface.get_height() // CELL_H)
             text_surface.convert_alpha()
@@ -67,13 +55,11 @@ class Field(CustomObject):
                                          TILE_SIZE // 2 - ts[1] // 2)
             surface.blit(text_surface, pos_text)
 
-
-        
         return surface
 
     def draw(self, surface:Surface):
         for ty in range(self.tiles_h):
             for tx in range(self.tiles_w):
-                tile = Tile(self.level, tx, ty, self.get_image(tx, ty))
+                tile = Tile(self.level, tx, ty)
                 tile.draw(surface)
 

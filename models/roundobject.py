@@ -85,16 +85,6 @@ class RoundObject(CustomScreenObject):
         self.field = Field(self.level)
         self.objects.append(self.field)
 
-    def get_hero_image(self):
-        color = (0, 255, 255)
-        width = cfg.TILE_WIDTH_IN_PIXEL
-        height = cfg.TILE_HEIGHT_IN_PIXEL
-        surface = pg.Surface((width, height), pg.SRCALPHA, 32)        
-        surface = surface.convert_alpha()
-        pg.draw.circle(surface, (0, 0, 255), (width // 2, height // 2), width //2, width=5)
-        
-        return surface
-
     def get_bomb_image(self):
         width = cfg.TILE_WIDTH_IN_PIXEL
         height = cfg.TILE_HEIGHT_IN_PIXEL
@@ -149,7 +139,7 @@ class RoundObject(CustomScreenObject):
         hero_state.time_to_hide = None
         hero_state.round_timeout = pg.time.get_ticks() + cfg.ROUND_TIMEOUT
 
-        character = Hero(self.game, hero_state, self.get_hero_image())
+        character = Hero(self.game, hero_state)
         
         self.state.keydown_handlers[pg.K_DOWN].append(character.handle_keydown)
         self.state.keydown_handlers[pg.K_RIGHT].append(character.handle_keydown)
@@ -323,7 +313,7 @@ class RoundObject(CustomScreenObject):
         pass
     
     def handle_open_treasure(self, eventdata):
-        self.hero.apply_treasure(self.level.treasure[1])
+        self.hero.apply_treasure(self.level.treasure[1][0])
         self.hero.state.score += cfg.TREASURE_SCORE
         pg.event.post(Event(cfg.E_TREASURE, action=TreasureAction.HIDE))
     

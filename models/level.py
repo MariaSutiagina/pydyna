@@ -6,6 +6,7 @@ from models.monsters import Monsters
 from utils.constants import BRICK_HARDNESS_MAX, BRICK_SOLID_TYPE, E_BRICK, E_EXIT, E_TREASURE, EXIT_TILE_TYPE, FIELD_TILES_H, FIELD_TILES_W, TILE_SIZE, TREASURE_TILE_TYPE, TREASURE_TYPES_COUNT
 from utils.environment import Environment
 import random
+from utils.resourcemanager import ResourceManager
 
 from utils.types import BrickAction, ExitAction, TreasureAction
 
@@ -16,10 +17,19 @@ class Level:
         self.game = game
 
         self.create_bombs()
+        self.extract_resources()
         self.extract_data()
 
     def create_bombs(self):
         self.bombs = Bombs(self.game)
+
+    def extract_resources(self):
+        # level = self.level.level
+        level = 1
+        self.resources = dict()
+        self.resources['floor'] = ResourceManager()[f'tile-road-{level:02}'].image
+        self.resources['bricks'] = ResourceManager()[f'tile-brick-{level:02}'].image
+        self.resources['solid'] = ResourceManager()[f'tile-solid-{level:02}'].image
 
     def extract_layout(self, data):
         self.layout = []
@@ -33,13 +43,17 @@ class Level:
             for ci, cell in enumerate(row):
                 rowpos[(ci, ri)] = cell
 
-        self.bricks = dict(filter(lambda x: x[1] > 0 and x[1] <= BRICK_HARDNESS_MAX, rowpos.items()))
-        self.solid = dict(filter(lambda x: x[1] == BRICK_SOLID_TYPE, rowpos.items()))
-        self.floor = dict(filter(lambda x: x[1] == 0, rowpos.items()))
+        self.bricks = dict(map(lambda y: (y[0], (y[1], random.choice(list(self.resources['bricks'].items()))[1].resource)), 
+                              filter(lambda x: x[1] > 0 and x[1] <= BRICK_HARDNESS_MAX, rowpos.items())))
+        self.solid = dict(map(lambda y: (y[0], (y[1], random.choice(list(self.resources['solid'].items()))[1].resource)), 
+                              filter(lambda x: x[1] == BRICK_SOLID_TYPE, rowpos.items())))
+        self.floor = dict(map(lambda y: (y[0], (y[1], random.choice(list(self.resources['floor'].items()))[1].resource)), 
+                              filter(lambda x: x[1] == 0, rowpos.items())))
+
         if self.bricks and len(self.bricks.items()) > 0:
             treasure_brick = random.choice(list(self.bricks.items()))
             treasure_type = random.randint(TREASURE_TILE_TYPE, TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT - 1)
-            self.treasure = (treasure_brick[0], treasure_type)
+            self.treasure = (treasure_brick[0], (treasure_type, None))
             del self.bricks[treasure_brick[0]]
 
             self.exit = random.choice(list(self.bricks.items()))
@@ -47,10 +61,15 @@ class Level:
             treasure_brick = None
             self.treasure = None
             self.exit = random.choice(list(self.floor.items()))
-            self.floor[self.exit[0]] = EXIT_TILE_TYPE
+            self.floor[self.exit[0]][0] = EXIT_TILE_TYPE
+
+        self.exit_resource = None
 
         if self.treasure:
-            self.bricks[self.treasure[0]] = treasure_type
+            self.bricks[self.treasure[0]] = (treasure_type, random.choice(list(self.resources['bricks'].items()))[1].resource)
+        
+        self.treasure_resource = None
+
 
     def extract_monsters(self, data:str):
         rowpos = {}
@@ -174,7 +193,7 @@ class Level:
                 if v == 0:
                     del self.bricks[c]
                     if c == self.exit[0]:
-                        self.floor[c] = EXIT_TILE_TYPE
+                        self.floor[c] = (EXIT_TILE_TYPE, None)
                         pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
                         pg.event.post(Event(E_EXIT, action=ExitAction.SHOW))
                     elif c == self.treasure[0]:
@@ -182,13 +201,13 @@ class Level:
                         pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
                         pg.event.post(Event(E_TREASURE, action=TreasureAction.SHOW, treasure=self.treasure))
                     else:
-                        self.floor[c] = 0
+                        self.floor[c] = (0, random.choice(list(self.resources['floor'].items()))[1].resource)
                         pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
 
     def remove_treasure(self):
         c = self.treasure[0]
-        self.floor[c] = 0
-        self.treasure = (c, -1)
+        self.floor[c] = (0, random.choice(list(self.resources['floor'].items()))[1].resource)
+        self.treasure = (c, (-1, None))
             
 
             
