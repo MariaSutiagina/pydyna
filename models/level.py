@@ -31,6 +31,13 @@ class Level:
         self.resources['floor'] = ResourceManager()[f'tile-road-{level:02}'].image
         self.resources['bricks'] = ResourceManager()[f'tile-brick-{level:02}'].image
         self.resources['solid'] = ResourceManager()[f'tile-solid-{level:02}'].image
+        self.resources['wall-horz'] = ResourceManager()[f'wall-horz-{level:02}'].image
+        self.resources['wall-vert'] = ResourceManager()[f'wall-vert-{level:02}'].image
+        self.resources['corner-lt'] = ResourceManager()[f'wall-lt-{level:02}'].image
+        self.resources['corner-rt'] = ResourceManager()[f'wall-rt-{level:02}'].image
+        self.resources['corner-lb'] = ResourceManager()[f'wall-lb-{level:02}'].image
+        self.resources['corner-rb'] = ResourceManager()[f'wall-rb-{level:02}'].image
+        self.resources['portal'] = ResourceManager()[f'exit-{level:02}'].image
     
     def create_random_tile_surface(self, tiletype):
         surface = pg.image.load(io.BytesIO(random.choice(list(self.resources[tiletype].items()))[1].resource)).convert_alpha()
@@ -38,6 +45,9 @@ class Level:
         # surface.set_alpha(10)
 
         return surface
+
+    def create_tile_surface(self, tiletype):
+        return pg.image.load(io.BytesIO(self.resources[tiletype]['N001'].resource)).convert_alpha()
 
     def extract_layout(self, data):
         self.layout = []
@@ -58,6 +68,19 @@ class Level:
         self.floor = dict(map(lambda y: (y[0], (y[1], self.create_random_tile_surface('floor'))), 
                               filter(lambda x: x[1] == 0, rowpos.items())))
 
+        self.wall_horz = []
+        for _ in self.layout[0]:
+            self.wall_horz.append(self.create_random_tile_surface('wall-horz'))
+
+        self.wall_vert = []
+        for _ in self.layout:
+            self.wall_vert.append(self.create_random_tile_surface('wall-vert'))
+
+        self.corner_lt = self.create_random_tile_surface('corner-lt')  
+        self.corner_lb = self.create_random_tile_surface('corner-lb')  
+        self.corner_rt = self.create_random_tile_surface('corner-rt')  
+        self.corner_rb = self.create_random_tile_surface('corner-rb')  
+
         if self.bricks and len(self.bricks.items()) > 0:
             treasure_brick = random.choice(list(self.bricks.items()))
             treasure_type = random.randint(TREASURE_TILE_TYPE, TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT - 1)
@@ -71,7 +94,7 @@ class Level:
             self.exit = random.choice(list(self.floor.items()))
             self.floor[self.exit[0]][0] = EXIT_TILE_TYPE
 
-        self.exit_resource = None
+        self.exit_resource = self.create_tile_surface('portal')
 
         if self.treasure:
             self.bricks[self.treasure[0]] = (treasure_type, self.create_random_tile_surface('bricks'))

@@ -45,34 +45,9 @@ class WallSide(CustomObject):
             self.h = WALL_W * CELL_H
             self.tiles = FIELD_TILES_W
 
-    def get_image(self) -> Surface:
-        RED = (255, 0, 0)
-        GREEN = (0, 255, 0)
-        BLUE = (0, 0, 255)
-        YELLOW = (255, 255, 0)
-
-        if self.side == Side.LEFT:
-            color = RED
-            surface = pg.Surface((self.w, CELL_H * TILE_SIZE), pg.SRCALPHA)
-        elif self.side == Side.RIGHT:
-            color = GREEN
-            surface = pg.Surface((self.w, CELL_H * TILE_SIZE), pg.SRCALPHA)
-        elif self.side == Side.UP:
-            color = YELLOW
-            surface = pg.Surface((CELL_W * TILE_SIZE, self.h), pg.SRCALPHA)
-        elif self.side == Side.DOWN:
-            color = BLUE
-            surface = pg.Surface((CELL_W * TILE_SIZE, self.h), pg.SRCALPHA)
-        else:
-            color = None
-        
-        surface.fill(color)
-
-        return surface
-
     def draw(self, surface:Surface):
         for t in range(self.tiles):
-            tile = WallTile(self.level, t, self.side, self.get_image())
+            tile = WallTile(self.level, t, self.side)
             tile.draw(surface)
 
 class WallCorners(CustomObject):
@@ -80,22 +55,11 @@ class WallCorners(CustomObject):
         self.level = level
         super().__init__(0, 0, 0, 0)
 
-    def get_image(self) -> Surface:
-        MAGENTA = (255, 0, 255)
-        color = MAGENTA
-        ws = wall_corner_tile_size_in_cells()
-        wh = ws[1] * CELL_H
-        ww = ws[0] * CELL_W
-        surface = pg.Surface((ww, wh), pg.SRCALPHA)        
-        surface.fill(color)
-
-        return surface
-
     def draw(self, surface:Surface):
-        WallCornerTile(self.level, Corner.LEFT_UPPER, self.get_image()).draw(surface)
-        WallCornerTile(self.level, Corner.LEFT_BOTTOM, self.get_image()).draw(surface)
-        WallCornerTile(self.level, Corner.RIGHT_UPPER, self.get_image()).draw(surface)
-        WallCornerTile(self.level, Corner.RIGHT_BOTTOM, self.get_image()).draw(surface)
+        WallCornerTile(self.level, Corner.LEFT_UPPER).draw(surface)
+        WallCornerTile(self.level, Corner.LEFT_BOTTOM).draw(surface)
+        WallCornerTile(self.level, Corner.RIGHT_UPPER).draw(surface)
+        WallCornerTile(self.level, Corner.RIGHT_BOTTOM).draw(surface)
 
 class Wall(CustomObject):
     def __init__(self, level:Level):

@@ -45,6 +45,9 @@ def wall_tile_size_in_cells(side:Side) -> Tuple:
 def wall_corner_tile_size_in_cells() -> Tuple:
     return (WALL_W, WALL_W)
 
+def wall_corner_tile_size_in_pixel() -> Tuple:
+    return (DX * WALL_W, DY * WALL_W)
+
 def cell_pos_to_pixel(x:int, y:int) -> Tuple:
     return (x * DX, y * DY)
 
