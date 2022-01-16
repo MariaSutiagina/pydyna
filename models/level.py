@@ -1,3 +1,4 @@
+import io
 import pygame as pg
 from pygame.event import Event
 
@@ -30,6 +31,13 @@ class Level:
         self.resources['floor'] = ResourceManager()[f'tile-road-{level:02}'].image
         self.resources['bricks'] = ResourceManager()[f'tile-brick-{level:02}'].image
         self.resources['solid'] = ResourceManager()[f'tile-solid-{level:02}'].image
+    
+    def create_random_tile_surface(self, tiletype):
+        surface = pg.image.load(io.BytesIO(random.choice(list(self.resources[tiletype].items()))[1].resource)).convert_alpha()
+        # surface.set_colorkey((0, 0, 0))
+        # surface.set_alpha(10)
+
+        return surface
 
     def extract_layout(self, data):
         self.layout = []
@@ -43,11 +51,11 @@ class Level:
             for ci, cell in enumerate(row):
                 rowpos[(ci, ri)] = cell
 
-        self.bricks = dict(map(lambda y: (y[0], (y[1], random.choice(list(self.resources['bricks'].items()))[1].resource)), 
+        self.bricks = dict(map(lambda y: (y[0], (y[1], self.create_random_tile_surface('bricks'))), 
                               filter(lambda x: x[1] > 0 and x[1] <= BRICK_HARDNESS_MAX, rowpos.items())))
-        self.solid = dict(map(lambda y: (y[0], (y[1], random.choice(list(self.resources['solid'].items()))[1].resource)), 
+        self.solid = dict(map(lambda y: (y[0], (y[1], self.create_random_tile_surface('solid'))), 
                               filter(lambda x: x[1] == BRICK_SOLID_TYPE, rowpos.items())))
-        self.floor = dict(map(lambda y: (y[0], (y[1], random.choice(list(self.resources['floor'].items()))[1].resource)), 
+        self.floor = dict(map(lambda y: (y[0], (y[1], self.create_random_tile_surface('floor'))), 
                               filter(lambda x: x[1] == 0, rowpos.items())))
 
         if self.bricks and len(self.bricks.items()) > 0:
@@ -66,7 +74,7 @@ class Level:
         self.exit_resource = None
 
         if self.treasure:
-            self.bricks[self.treasure[0]] = (treasure_type, random.choice(list(self.resources['bricks'].items()))[1].resource)
+            self.bricks[self.treasure[0]] = (treasure_type, self.create_random_tile_surface('bricks'))
         
         self.treasure_resource = None
 
@@ -201,12 +209,12 @@ class Level:
                         pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
                         pg.event.post(Event(E_TREASURE, action=TreasureAction.SHOW, treasure=self.treasure))
                     else:
-                        self.floor[c] = (0, random.choice(list(self.resources['floor'].items()))[1].resource)
+                        self.floor[c] = (0, self.create_random_tile_surface('floor'))
                         pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
 
     def remove_treasure(self):
         c = self.treasure[0]
-        self.floor[c] = (0, random.choice(list(self.resources['floor'].items()))[1].resource)
+        self.floor[c] = (0, self.create_random_tile_surface('floor'))
         self.treasure = (c, (-1, None))
             
 
