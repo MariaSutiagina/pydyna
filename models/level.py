@@ -25,8 +25,8 @@ class Level:
         self.bombs = Bombs(self.game)
 
     def extract_resources(self):
-        # level = self.level.level
-        level = 1
+        level = self.level
+        # level = 1
         self.resources = dict()
         self.resources['floor'] = ResourceManager()[f'tile-road-{level:02}'].image
         self.resources['bricks'] = ResourceManager()[f'tile-brick-{level:02}'].image
@@ -41,13 +41,13 @@ class Level:
     
     def create_random_tile_surface(self, tiletype):
         surface = pg.image.load(io.BytesIO(random.choice(list(self.resources[tiletype].items()))[1].resource)).convert_alpha()
-        # surface.set_colorkey((0, 0, 0))
-        # surface.set_alpha(10)
-
         return surface
+    
+    def load_tile_surface(self, data):
+        return pg.image.load(io.BytesIO(data)).convert_alpha()
 
-    def create_tile_surface(self, tiletype):
-        return pg.image.load(io.BytesIO(self.resources[tiletype]['N001'].resource)).convert_alpha()
+    def create_tile_surface(self, tiletype, resource_code):
+        return self.load_tile_surface(self.resources[tiletype][resource_code].resource)
 
     def extract_layout(self, data):
         self.layout = []
@@ -81,10 +81,16 @@ class Level:
         self.corner_rt = self.create_random_tile_surface('corner-rt')  
         self.corner_rb = self.create_random_tile_surface('corner-rb')  
 
+        treasure_type = random.randint(TREASURE_TILE_TYPE, TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT - 1)
+        self.treasure_resources = []
+        self.resources['treasure'] = ResourceManager()[f'treasure-{treasure_type - TREASURE_TILE_TYPE + 1:02}'].image
+
+        for r in self.resources['treasure'].items():
+            self.treasure_resources.append(self.load_tile_surface(r[1].resource))
+
         if self.bricks and len(self.bricks.items()) > 0:
             treasure_brick = random.choice(list(self.bricks.items()))
-            treasure_type = random.randint(TREASURE_TILE_TYPE, TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT - 1)
-            self.treasure = (treasure_brick[0], (treasure_type, None))
+            self.treasure = (treasure_brick[0], (treasure_type, self.treasure_resources[0]))
             del self.bricks[treasure_brick[0]]
 
             self.exit = random.choice(list(self.bricks.items()))
@@ -94,12 +100,11 @@ class Level:
             self.exit = random.choice(list(self.floor.items()))
             self.floor[self.exit[0]][0] = EXIT_TILE_TYPE
 
-        self.exit_resource = self.create_tile_surface('portal')
+        self.exit_resource = self.create_tile_surface('portal', 'N001')
 
         if self.treasure:
             self.bricks[self.treasure[0]] = (treasure_type, self.create_random_tile_surface('bricks'))
         
-        self.treasure_resource = None
 
 
     def extract_monsters(self, data:str):
@@ -230,7 +235,7 @@ class Level:
                     elif c == self.treasure[0]:
                         self.floor[c] = self.treasure[1]
                         pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))
-                        pg.event.post(Event(E_TREASURE, action=TreasureAction.SHOW, treasure=self.treasure))
+                        pg.event.post(Event(E_TREASURE, action=TreasureAction.SHOW, treasure=self.treasure, treasure_stage=1))
                     else:
                         self.floor[c] = (0, self.create_random_tile_surface('floor'))
                         pg.event.post(Event(E_BRICK, action=BrickAction.REMOVE))

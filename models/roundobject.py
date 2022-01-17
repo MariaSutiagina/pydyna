@@ -310,7 +310,16 @@ class RoundObject(CustomScreenObject):
                 self.level.monsters.append(Monster(self.game, state))
 
     def handle_show_treasure(self, eventdata):
-        pass
+        if eventdata.treasure[1][0] > 0:
+            res = self.level.treasure_resources
+            stage = eventdata.treasure_stage % len(res)
+            self.level.treasure = (eventdata.treasure[0], (eventdata.treasure[1][0], res[stage]))
+
+            pg.time.set_timer(Event(cfg.E_TREASURE, 
+                                    action=TreasureAction.SHOW, 
+                                    treasure=self.level.treasure, 
+                                    treasure_stage=stage + 1), 
+                              millis = cfg.ANIMATION_PERIOD, loops=1)
     
     def handle_open_treasure(self, eventdata):
         self.hero.apply_treasure(self.level.treasure[1][0])

@@ -69,7 +69,7 @@ class Tile(CustomTile):
         elif cx == self.level.exit[0] and self.level.floor[cx][0] == EXIT_TILE_TYPE:
             resource = self.level.exit_resource
         elif self.level.treasure and cx == self.level.treasure[0] and self.level.floor[cx][0] >= TREASURE_TILE_TYPE and self.level.floor[cx][0] < TREASURE_TILE_TYPE + TREASURE_TYPES_COUNT:
-            resource = self.level.treasure_resource
+            resource = self.level.treasure[1][1]
         else:
             resource = self.level.floor[cx][1]
         
