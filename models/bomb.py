@@ -1,11 +1,13 @@
-from typing import Sequence, List, Tuple
+import io
+from typing import Sequence
 import pygame as pg
 from pygame.event import Event
 from pygame.rect import Rect
-from pygame.surface import Surface
+from pygame import Surface
 from models.customcharacter import CustomCharacter
-from utils.constants import CELL_H, CELL_W, E_BOMB, EXPLOSION_DURATION, TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
-from utils.types import BombAction, Direction
+from utils.constants import CELL_H, CELL_W, E_BOMB, EXPLOSION_DURATION, FADE_TIMEOUT,  TILE_HEIGHT_IN_PIXEL, TILE_SIZE, TILE_WIDTH_IN_PIXEL, WALL_W
+from utils.resourcemanager import ResourceManager
+from utils.types import BombAction
 from utils.utils import cell_pos_to_pixel
 
 class BombRect(Rect):
@@ -23,9 +25,14 @@ class BombRect(Rect):
 
 
 class Bomb(CustomCharacter):
-    def __init__(self, game, state, image):
+    def __init__(self, game, state):
         state.rect.bomb = self
-        super().__init__(game, state, image)
+        super().__init__(game, state)
+        self.images = {}
+        self.images['bomb'] = pg.image.load(io.BytesIO(ResourceManager()['bomb'].image.N001.resource)).convert_alpha()
+        self.images['explosion-center'] = pg.image.load(io.BytesIO(ResourceManager()['bomb-explosion-center'].image.N001.resource)).convert_alpha()
+        self.images['explosion-horz'] = pg.image.load(io.BytesIO(ResourceManager()['bomb-explosion-horz-end'].image.N001.resource)).convert_alpha()
+        self.images['explosion-vert'] = pg.image.load(io.BytesIO(ResourceManager()['bomb-explosion-vert-end'].image.N001.resource)).convert_alpha()
 
     def get_level(self):
         return self.game.get_state().roundobject.level
@@ -43,38 +50,23 @@ class Bomb(CustomCharacter):
         if key in [pg.K_RETURN]:
             self.state.command.key = None
     
-    def get_vert_image(self):
-        width = TILE_WIDTH_IN_PIXEL
-        height = TILE_HEIGHT_IN_PIXEL
-        sfc = pg.Surface((width, height), pg.SRCALPHA, 32)        
-        sfc = sfc.convert_alpha()
-        pg.draw.line(sfc, (0x1d, 0x1c, 0xd6), (width // 2, 0), (width //2, height), width=21)
-        return sfc
 
-    def get_horz_image(self):
-        width = TILE_WIDTH_IN_PIXEL
-        height = TILE_HEIGHT_IN_PIXEL
-        sfc = pg.Surface((width, height), pg.SRCALPHA, 32)        
-        sfc = sfc.convert_alpha()
-        pg.draw.line(sfc, (0x1d, 0x1c, 0xd6), (0, height // 2), (width, height // 2), width=21)
-        return sfc
-
-
-    def draw_vert_rect(self, surface, rect):
+    def draw_rect(self, surface, rect, type):
         pos = cell_pos_to_pixel(WALL_W + rect.left, WALL_W + rect.top)
-        surface.blit(self.get_vert_image(), pos)
-
-    def draw_horz_rect(self, surface, rect):
-        pos = cell_pos_to_pixel(WALL_W + rect.left, WALL_W + rect.top)
-        surface.blit(self.get_horz_image(), pos)
+        sfc = self.images[f'explosion-{type}']
+        share = (self.state.explosion_end_timeout - pg.time.get_ticks()) / EXPLOSION_DURATION
+        sfc.set_alpha(int(255 * share))
+        surface.blit(sfc, pos)
 
     def draw_rects(self, surface):
         br = self.state.rect
-        for r in self.state.rects:
+        lr = len(self.state.rects) - 1
+        for n, r in enumerate(self.state.rects):
             if r.top < br.top or r.top >= br.top + TILE_SIZE:
-                self.draw_vert_rect(surface, r)
+                self.draw_rect(surface, r, 'vert')
             else:
-                self.draw_horz_rect(surface, r)
+                self.draw_rect(surface, r, 'horz')
+
 
 
     def draw(self, surface:Surface):
@@ -93,8 +85,16 @@ class Bomb(CustomCharacter):
         pos = cell_pos_to_pixel(WALL_W + self.state.cellx, WALL_W + self.state.celly)
         pos_text = cell_pos_to_pixel(WALL_W + self.state.cellx + TILE_SIZE // 2 - ts[0] // 2, 
                                      WALL_W + self.state.celly + TILE_SIZE // 2 - ts[1] // 2)
-        surface.blit(self.image, pos)
-        surface.blit(text_surface, pos_text)
+
+        if not self.state.explosion:                             
+            surface.blit(self.images['bomb'], pos)
+            surface.blit(text_surface, pos_text)
+        else:
+            sfc = self.images['explosion-center']
+            share = (self.state.explosion_end_timeout - pg.time.get_ticks()) / EXPLOSION_DURATION
+            sfc.set_alpha(int(255 * share))
+            surface.blit(sfc, pos)
+    
         self.draw_rects(surface)
 
     def make_explosion_rects(self, cells):

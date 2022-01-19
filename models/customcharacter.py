@@ -4,7 +4,7 @@ import io
 from pygame import Surface
 from utils.resourcemanager import ResourceManager
 
-from utils.utils import cell_pos_to_pixel, cell_size_in_pixel, tile_size_in_pixel
+from utils.utils import cell_pos_to_pixel, tile_size_in_pixel
 from utils.constants import ANIMATION_PERIOD, FADE_TIMEOUT, GAME_FONT_PATH, MOVEMENT_TIMEOUT, WALL_W, DIRECTION_CHANGE_FACTOR, TILE_SIZE
 from utils.types import Direction
 from utils.characterstate import CharacterState
@@ -89,10 +89,9 @@ class CustomCharacter(CustomObject):
 
     def draw(self, surface:Surface):
         resource = self.select_image()
+        sfc = None
         if resource:
             sfc = self.create_surface(resource.resource)
-        else:
-            sfc = self.image
 
         if not self.state.alive:
             if self.state.time_to_hide:

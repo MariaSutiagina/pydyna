@@ -179,7 +179,7 @@ class RoundObject(CustomScreenObject):
                 'direction': Direction.NONE,
                 'old_direction': Direction.NONE
                 }
-            bomb = Bomb(self.game, CharacterState(state), self.get_bomb_image())
+            bomb = Bomb(self.game, CharacterState(state))
             self.level.bombs.append(bomb)
             self.objects.append(bomb)
 

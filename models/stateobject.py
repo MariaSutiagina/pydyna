@@ -26,7 +26,7 @@ class StateObject(CustomObject):
         return 12
 
     def draw(self, surface:Surface):
-        text_surface = self.font.render(self.state_text, True, (0x2c, 0x75, 0xff))
+        text_surface = self.font.render(self.state_text, True, (0xff, 0xa0, 0x00))
         ts = (text_surface.get_width(), text_surface.get_height())
         pos_text = (10, self.h // 2 - ts[1] // 2)
         text_surface.convert_alpha()
