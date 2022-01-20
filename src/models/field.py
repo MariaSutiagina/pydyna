@@ -4,11 +4,12 @@ from models.customobject import CustomObject
 from models.level import Level
 from utils.constants import BRICK_HARDNESS_MAX, EXIT_TILE_TYPE, GAME_FONT_PATH, TREASURE_TILE_TYPE, TREASURE_TYPES_COUNT, WALL_W, CELL_W, CELL_H, FIELD_WIDTH_INNER, FIELD_HEIGHT_INNER, FIELD_TILES_W, FIELD_TILES_H, TILE_SIZE
 from models.tiles import Tile
+from utils.environment import Environment
 from utils.utils import cell_pos_to_pixel
 
 class Field(CustomObject):
     def __init__(self, level:Level):
-        self.font = pg.font.Font(GAME_FONT_PATH, 30)
+        self.font = pg.font.Font(Environment().get_path(GAME_FONT_PATH), 30)
         self.level = level
         self.x = WALL_W * CELL_W
         self.y = WALL_W * CELL_H

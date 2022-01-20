@@ -5,11 +5,12 @@ import pygame as pg
 from pygame import Surface
 from models.customobject import CustomObject
 from utils.constants import CELL_H, GAME_FONT_PATH, WALL_W
+from utils.environment import Environment
 
 
 class StateObject(CustomObject):
     def __init__(self, game, state):
-        self.font = pg.font.Font(GAME_FONT_PATH, 30)
+        self.font = pg.font.Font(Environment().get_path(GAME_FONT_PATH), 30)
         self.state = state
         self.state_text = ''
         self.game = game

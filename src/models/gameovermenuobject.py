@@ -8,8 +8,9 @@ from pygame_menu.locals import ALIGN_CENTER
 from pygame import Surface
 from models.customscreenobject import CustomScreenObject
 from utils.characterstate import CharacterStateEncoder
-from utils.constants import FIELD_HEIGHT, FIELD_WIDTH
+from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, GAME_FONT_PATH
 from utils.statemanager import StateManager
+from utils.environment import Environment
 
 # реализует функциональность меню окончания игры
 # наследуется от CustomScreenObject
@@ -54,7 +55,7 @@ class GameOverMenuObject(CustomScreenObject):
         theme.cursor_selection_color = (255, 0, 0, 64)
         theme.widget_alignment = ALIGN_CENTER
         theme.widget_background_color = None
-        theme.widget_font = './resources/fonts/Elfboyclassic.ttf'
+        theme.widget_font = Environment().get_path(GAME_FONT_PATH)
         theme.widget_font_color = (0xff, 0xcc, 0x16)
         theme.widget_font_size = 60
         theme.widget_padding = 0

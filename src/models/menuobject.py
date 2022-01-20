@@ -1,3 +1,4 @@
+from utils.environment import Environment
 import pygame as pg
 
 # поставили pygame-menu - чтоб нарисовать меню и прочие элементы управления
@@ -7,7 +8,7 @@ from pygame_menu.themes import THEME_ORANGE as menu_theme
 
 from pygame import Surface
 from models.customscreenobject import CustomScreenObject
-from utils.constants import FIELD_HEIGHT, FIELD_WIDTH
+from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, GAME_FONT_PATH
 
 # экран меню тоже наследуем от CustomScreenObject
 class MenuObject(CustomScreenObject):
@@ -42,7 +43,7 @@ class MenuObject(CustomScreenObject):
     def init_menu(self):
         # настраиваем тему исходя из стандартной темы ORANGE
         menu_theme.set_background_color_opacity(0.1)
-        menu_theme.widget_font = './resources/fonts/Elfboyclassic.ttf'
+        menu_theme.widget_font = Environment().get_path(GAME_FONT_PATH)
         menu_theme.widget_font_size = 60
         menu_theme.widget_selection_effect = pgm.widgets.HighlightSelection(1, 0, 0).set_color((0xff, 0xdd, 0x7c))
         menu_theme.widget_font_color = (0xff, 0xcc, 0x16)

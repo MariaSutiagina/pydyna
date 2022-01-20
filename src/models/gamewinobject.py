@@ -3,13 +3,14 @@ import pygame as pg
 from pygame import Surface
 from models.customscreenobject import CustomScreenObject
 from utils.constants import GAME_FONT_PATH
+from utils.environment import Environment
 
 # реализует функциональность  финального экрана
 # наследуется от CustomScreenObject
 class GameWinObject(CustomScreenObject):
     def __init__(self, state):
         super().__init__(state)
-        self.font = pg.font.Font(GAME_FONT_PATH, 190)
+        self.font = pg.font.Font(Environment().get_path(GAME_FONT_PATH), 190)
 
     # переход в меню
     def to_menu(self):

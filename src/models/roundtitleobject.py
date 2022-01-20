@@ -3,13 +3,14 @@ import pygame as pg
 from pygame import Surface
 from models.customscreenobject import CustomScreenObject
 from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, GAME_FONT_PATH
+from utils.environment import Environment
 
 # реализует функциональность заставки раунда
 # наследуется от CustomScreenObject
 class RoundTitleObject(CustomScreenObject):
     def __init__(self, state):
         super().__init__(state)
-        self.font = pg.font.Font(GAME_FONT_PATH, 190)
+        self.font = pg.font.Font(Environment().get_path(GAME_FONT_PATH), 190)
 
     # переход к игровому раунду
     def to_round(self):

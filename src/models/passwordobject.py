@@ -7,7 +7,8 @@ from pygame_menu.locals import ALIGN_CENTER, ALIGN_LEFT
 from pygame import Surface
 from models.customscreenobject import CustomScreenObject
 from utils.characterstate import CharacterState
-from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, KEYBOARD
+from utils.constants import FIELD_HEIGHT, FIELD_WIDTH, GAME_FONT_PATH, KEYBOARD
+from utils.environment import Environment
 from utils.statemanager import StateManager
 
 class PasswordObject(CustomScreenObject):
@@ -67,7 +68,7 @@ class PasswordObject(CustomScreenObject):
         theme.cursor_selection_color = (255, 0, 0, 64)
         theme.widget_alignment = ALIGN_CENTER
         theme.widget_background_color = None
-        theme.widget_font = './resources/fonts/Elfboyclassic.ttf'
+        theme.widget_font = Environment().get_path(GAME_FONT_PATH)
         theme.widget_font_color = (0xff, 0xcc, 0x16)
         theme.widget_font_size = 72
         theme.widget_padding = 0

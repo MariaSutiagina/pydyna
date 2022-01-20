@@ -2,6 +2,7 @@ from typing import Tuple
 import pygame as pg
 import io
 from pygame import Surface
+from utils.environment import Environment
 from utils.resourcemanager import ResourceManager
 
 from utils.utils import cell_pos_to_pixel, tile_size_in_pixel
@@ -15,7 +16,7 @@ from models.customobject import CustomObject
 
 class CustomCharacter(CustomObject):
     def __init__(self, game, state:CharacterState=None, image:Surface=None):
-        self.font = pg.font.Font(GAME_FONT_PATH, 30)
+        self.font = pg.font.Font(Environment().get_path(GAME_FONT_PATH), 30)
         self.state = state
         self.game = game
         self.image = image
