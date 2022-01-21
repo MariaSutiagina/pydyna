@@ -98,7 +98,7 @@ class Level:
             treasure_brick = None
             self.treasure = None
             self.exit = random.choice(list(self.floor.items()))
-            self.floor[self.exit[0]][0] = EXIT_TILE_TYPE
+            self.floor[self.exit[0]] = (EXIT_TILE_TYPE, None)
 
         self.exit_resource = self.create_tile_surface('portal', 'N001')
 
