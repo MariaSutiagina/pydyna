@@ -15,14 +15,6 @@ class BombRect(Rect):
         self.bomb = bomb
         super().__init__(left, top, width, height)
 
-    # def __init__(self, bomb, left_top:List[float], width_height:List[float]):
-    #     self.bomb = bomb
-    #     super().__init__(left_top, width_height)
-
-    # def __init__(self, bomb, rect:Rect):
-    #     self.bomb = bomb
-    #     super().__init__(rect)
-
 
 class Bomb(CustomCharacter):
     def __init__(self, game, state):
@@ -70,10 +62,6 @@ class Bomb(CustomCharacter):
 
 
     def draw(self, surface:Surface):
-        # if self.state.explosion:
-        #     if self.state.time_to_hide:
-        #         share = (self.state.time_to_hide - pg.time.get_ticks()) / FADE_TIMEOUT
-        #         self.image.set_alpha(int(255 * share))
         if not self.state.explosion:
             time_text = f'{(self.state.explosion_timeout - pg.time.get_ticks()) / 1000 :2.1f}'
         else:
@@ -111,6 +99,10 @@ class Bomb(CustomCharacter):
         else:
             if (not self.state.is_remote) and pg.time.get_ticks() >= self.state.explosion_timeout:
                 pg.event.post(Event(E_BOMB, action=BombAction.START_EXPLOSION, bomb=self))
+
+    def handle_inactive_treasure(self, eventdata):
+        self.state.is_remote = False
+
 
 
             

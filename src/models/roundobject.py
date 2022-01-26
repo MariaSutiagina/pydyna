@@ -185,6 +185,7 @@ class RoundObject(CustomScreenObject):
 
             self.objects.sort(key=lambda x: x.get_sort_key())
     
+            self.state.treasure_handlers[TreasureAction.INACTIVE].append(bomb.handle_inactive_treasure)
             self.hero.state.bombs_count -= 1
 
     def start_bomb_explosion(self, eventdata):
@@ -201,6 +202,7 @@ class RoundObject(CustomScreenObject):
         self.remove_bomb(bomb)
 
     def remove_bomb(self, bomb):
+        self.state.treasure_handlers[TreasureAction.INACTIVE].remove(bomb.handle_inactive_treasure)
         self.objects.remove(bomb)
         self.level.bombs.remove(bomb)
         self.hero.state.bombs_count += 1
