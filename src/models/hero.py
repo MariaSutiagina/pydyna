@@ -21,7 +21,7 @@ class Hero(CustomCharacter):
     def __init__(self, game, state:CharacterState=None):
         state.bombs_count = state.bombs_capacity
         state.rect = HeroRect(self, state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
-        super().__init__(game, state, None)
+        super().__init__(game, state)
 
     def get_resource_ids(self):
         return ['hero-front-up', 'hero-front-dn', 

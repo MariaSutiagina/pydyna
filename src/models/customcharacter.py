@@ -80,7 +80,8 @@ class CustomCharacter(CustomObject):
         if resource:
             # достаем текущую картинку из ресурсов
             # и загружаем ее как поверхность pygame
-            surface = pg.transform.scale(pg.image.load(io.BytesIO(resource)).convert_alpha(), ts)
+            # surface = pg.transform.scale(pg.image.load(io.BytesIO(resource)).convert_alpha(), ts)
+            surface = pg.image.load(io.BytesIO(resource)).convert_alpha()
         else:    
             color = (128, 128, 128)
             surface = pg.Surface(ts, pg.SRCALPHA)        

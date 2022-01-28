@@ -18,10 +18,9 @@ class CharacterRect(Rect):
         super().__init__(left, top, width, height)
 
 class Character(CustomCharacter):
-
-    def __init__(self, game, state, image):
+    def __init__(self, game, state):
         state.rect = CharacterRect(self, state.cellx, state.celly, TILE_SIZE, TILE_SIZE)
-        super().__init__(game, state, image)
+        super().__init__(game, state)
         chain_length = self.get_chain()
         self.chain = deque(maxlen=chain_length)
 
@@ -62,14 +61,12 @@ class Character(CustomCharacter):
         else:
             return 0
     
-
     def compute_direction(self) -> Direction:
         save_direction = random.choice([* self.get_direction_change_factor()*[True], False],)
         direction = self.state.direction
         if not save_direction or not direction or direction == Direction.NONE:
             direction = self.select_new_direction(direction)
         return direction
-    
     
     def compute_and_update_chain(self, old_position):
         if len(self.chain) > 0:
@@ -89,8 +86,6 @@ class Character(CustomCharacter):
                 self.state.children_make_timeout = pg.time.get_ticks() + self.get_capabilities()['pregnancy_duration'] * 1000
 
     def update_state(self):
-        # super().update_state()
-
         speed = self.compute_speed()
         old_position = (self.state.cellx, self.state.celly)
         position = self.compute_position(speed, self.state.direction)
@@ -115,34 +110,7 @@ class Character(CustomCharacter):
         self.compute_and_update_chain(old_position)
         self.compute_and_update_children()
 
-
     def compute_and_update_state(self, position: Tuple, speed: int, direction: Direction):
         super().compute_and_update_state(position, speed, direction)
         r = self.state.rect
         self.state.rect = CharacterRect(self, r.left, r.top, r.width, r.height)
-
-    def draw(self, surface:Surface):
-        pos = cell_pos_to_pixel(WALL_W + self.state.cellx, WALL_W + self.state.celly)
-        surfaces = []
-
-        width = TILE_WIDTH_IN_PIXEL
-        height = TILE_HEIGHT_IN_PIXEL
-        sfc = pg.Surface((width, height), pg.SRCALPHA, 32)        
-        sfc = sfc.convert_alpha()
-        sfc.blit(self.image, (0,0))
-
-        surfaces.append((sfc, pos))
-
-        lc = len(self.chain)
-        for i, c in enumerate(self.chain):
-            if c:
-                pos = cell_pos_to_pixel(WALL_W + c.left, WALL_W + c.top)
-
-                sfc = pg.Surface((width, height), pg.SRCALPHA, 32)        
-                sfc = sfc.convert_alpha()
-                sfc.blit(self.image, (0,0))
-                sfc.set_alpha(int(255 * (lc - i) // lc ))
-                surfaces.append((sfc, pos))
-        
-        surface.blits(surfaces)
-
